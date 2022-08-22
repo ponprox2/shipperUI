@@ -18,6 +18,11 @@ import {
   Typography,
   TableContainer,
   TablePagination,
+  Select,
+  FormControl,
+  MenuItem,
+  InputLabel,
+  Box,
 } from '@mui/material';
 // components
 import Page from '../components/Page';
@@ -27,19 +32,23 @@ import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
 // mock
-import USERLIST from '../_mock/user';
+import { getShippingOrderConfirmAPI, confirmShippingOrderAPI } from '../components/services/index';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'shippingID', label: 'shippingID', alignRight: false },
+  { id: 'shopOrderID', label: 'shopOrderID', alignRight: false },
+  { id: 'shopName ', label: 'shopName ', alignRight: false },
   { id: 'packageName', label: 'packageName', alignRight: false },
   { id: 'quantity', label: 'quantity', alignRight: false },
   { id: 'mass', label: 'mass', alignRight: false },
   { id: 'unitPrice', label: 'unitPrice', alignRight: false },
+  { id: 'shippingFee ', label: 'shippingFee ', alignRight: false },
+  { id: 'totalPrice ', label: 'totalPrice ', alignRight: false },
+  { id: 'shippingFeePayment ', label: 'shippingFeePayment ', alignRight: false },
 
   { id: 'deliveryAddress', label: 'deliveryAddress', alignRight: false },
-  { id: 'status', label: 'status', alignRight: false },
+  { id: 'confirmation ', label: 'confirmation ', alignRight: false },
 ];
 // id: 1,
 // shippingID: 123,
@@ -68,8 +77,8 @@ function getComparator(order, orderBy) {
 }
 
 function applySortFilter(array, comparator, query) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
+  const stabilizedThis = array?.map((el, index) => [el, index]);
+  stabilizedThis?.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) return order;
     return a[1] - b[1];
@@ -77,7 +86,7 @@ function applySortFilter(array, comparator, query) {
   if (query) {
     return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
-  return stabilizedThis.map((el) => el[0]);
+  return stabilizedThis?.map((el) => el[0]);
 }
 
 export default function User() {
@@ -92,27 +101,59 @@ export default function User() {
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [massInput, setMassInput] = useState(0);
+  const [priceInput, setPriceInput] = useState(0);
 
   const [listUser, setListUser] = useState([
     {
-      id: 1,
-      shippingID: 123,
-      packageName: 'giay the thao',
-      quantity: 1,
-      mass: 20,
-      unitPrice: 100000,
-      deliveryAddress: '99 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-      status: true,
+      shopOrderID: '10',
+      shopName: 'Olivo Official Store',
+      packageName: 'Máy chơi game xịn',
+      quantity: '4',
+      mass: '0.6',
+      unitPrice: '50000',
+      shippingFee: '16200',
+      totalPrice: '216200',
+      deliveryAddress: '97 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
+      shippingFeePayment: '0',
+      fullPayment: '0',
+      confirmation: '1',
     },
   ]);
 
-  useEffect(() => {
-    async function loadListUser() {
-      const res = await axios.get('http://localhost:3000/api/v1/users');
-      setListUser(res.data);
+  const getShippingOrderConfirm = async (body) => {
+    try {
+      const res = await getShippingOrderConfirmAPI(body);
+      setListUser(res?.data);
+    } catch (error) {
+      console.log(error);
     }
-    loadListUser();
-  }, []);
+  };
+
+  const confirmShippingOrder = async (body) => {
+    try {
+      const res = await confirmShippingOrderAPI(body);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleSave = () => {
+    const body = listUser?.map((e) => ({
+      shopOrderID: e?.shopOrderID,
+      confirmation: e?.confirmation,
+      shipperID: 6,
+    }));
+    confirmShippingOrder(body);
+  };
+
+  useEffect(() => {
+    const body = {
+      shipperID: 6,
+      mass: massInput,
+      totalPrice: priceInput,
+    };
+    getShippingOrderConfirm(body);
+  }, [massInput, priceInput]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -135,11 +176,11 @@ export default function User() {
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, name);
     } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
+      newSelected = newSelected.concat(selected?.slice(1));
+    } else if (selectedIndex === selected?.length - 1) {
+      newSelected = newSelected.concat(selected?.slice(0, -1));
     } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
+      newSelected = newSelected.concat(selected?.slice(0, selectedIndex), selected?.slice(selectedIndex + 1));
     }
     setSelected(newSelected);
   };
@@ -169,15 +210,26 @@ export default function User() {
       temp1 = temp;
     }
     const temp2 = [...temp1, ...tempArr];
-    temp2.sort((a, b) => a.id - b.id);
+    temp2?.sort((a, b) => a.id - b.id);
     setListUser(temp2);
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listUser.length) : 0;
+  const handleChangeDeliveryStatus = (event, id) => {
+    const temp = listUser.filter((e) => e.shopOrderID === id);
+    const tempArr = listUser.filter((e) => e.shopOrderID !== id);
+    let temp1 = [];
+    temp[0].confirmation = event.target.value;
+    temp1 = temp;
+    const temp2 = [...temp1, ...tempArr];
+    temp2?.sort((a, b) => a.shopOrderID - b.shopOrderID);
+    setListUser(temp2);
+  };
+
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listUser?.length) : 0;
 
   const filteredUsers = applySortFilter(listUser, getComparator(order, orderBy), filterName);
 
-  const isUserNotFound = filteredUsers.length === 0;
+  const isUserNotFound = filteredUsers?.length === 0;
 
   return (
     <Page title="User">
@@ -186,13 +238,48 @@ export default function User() {
           <Typography variant="h4" gutterBottom>
             Nhận - Hủy Đơn Vận Chuyển
           </Typography>
-          <Button variant="contained" component={RouterLink} to="#" startIcon={<Iconify icon="eva:plus-fill" />}>
+          <Button
+            variant="contained"
+            component={RouterLink}
+            to="#"
+            startIcon={<Iconify icon="eva:plus-fill" />}
+            onClick={handleSave}
+          >
             Lưu
           </Button>
         </Stack>
 
         <Card>
-          <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          <Box sx={{ marginLeft: '30px' }}>
+            <Box sx={{ display: 'flex', marginBottom: '15px', alignItems: 'center', height: '56px' }}>
+              <Typography textAlign="center">mass (Khối lượng(Kg)) : </Typography>
+              <input
+                style={{
+                  width: '120px',
+                  height: '25px',
+                  marginLeft: '70px',
+                  borderRadius: '25px',
+                  padding: '5px',
+                }}
+                value={massInput}
+                onChange={(e) => setMassInput(e.target.value)}
+              />
+            </Box>
+            <Box sx={{ display: 'flex' }}>
+              <Typography>totalPrice(Tổng tiền (VNĐ)) : </Typography>
+              <input
+                style={{
+                  width: '120px',
+                  height: '25px',
+                  marginLeft: '35px',
+                  borderRadius: '25px',
+                  padding: '5px',
+                }}
+                value={priceInput}
+                onChange={(e) => setPriceInput(e.target.value)}
+              />
+            </Box>
+          </Box>
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
@@ -201,31 +288,33 @@ export default function User() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={listUser.length}
-                  numSelected={selected.length}
+                  rowCount={listUser?.length}
+                  numSelected={selected?.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, shippingID, packageName, quantity, mass, unitPrice, deliveryAddress, status } = row;
-                    // id:1,
-                    // shippingID:123,
-                    // packageName:'giay the thao',
-                    // quantity:1,
-                    // mass:20,
-                    // unitPrice:100000,
-                    // deliveryAddress:'99 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-                    // status:true,
-                    // Đang để mặc đinh là active vì chưa có thuộc tính 'Status'
-                    // const status = 'active';
+                  {filteredUsers?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    const {
+                      shopOrderID,
+                      shopName,
+                      packageName,
+                      quantity,
+                      mass,
+                      unitPrice,
+                      shippingFee,
+                      totalPrice,
+                      deliveryAddress,
+                      shippingFeePayment,
+                      confirmation,
+                    } = row;
 
-                    const isItemSelected = selected.indexOf(shippingID) !== -1;
+                    const isItemSelected = selected.indexOf(shopOrderID) !== -1;
 
                     return (
                       <TableRow
                         hover
-                        key={id}
+                        key={shopOrderID}
                         tabIndex={-1}
                         role="checkbox"
                         selected={isItemSelected}
@@ -234,28 +323,30 @@ export default function User() {
                         <TableCell padding="checkbox">
                           {/* <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} /> */}
                         </TableCell>
-                        {/* <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={avatarUrl} />
-                            <Typography variant="subtitle2" noWrap>
-                              {name}
-                            </Typography>
-                          </Stack>
-                        </TableCell> */}
-                        {/* const { id, shippingID, packageName, quantity, mass, unitPrice, deliveryAddress, status } = row; */}
-                        <TableCell align="left">{shippingID}</TableCell>
+                        <TableCell align="left">{shopOrderID}</TableCell>
+                        <TableCell align="left">{shopName}</TableCell>
                         <TableCell align="left">{packageName}</TableCell>
                         <TableCell align="left">{quantity}</TableCell>
                         <TableCell align="left">{mass}</TableCell>
 
                         <TableCell align="left">{unitPrice}</TableCell>
+                        <TableCell align="left">{shippingFee}</TableCell>
+                        <TableCell align="left">{totalPrice}</TableCell>
+                        <TableCell align="left">{shippingFeePayment}</TableCell>
                         <TableCell align="left">{deliveryAddress}</TableCell>
-                        <TableCell align="left" onClick={() => handleChangeStatus(id)}>
-                          {status ? 'nhan' : 'huy'}
-                        </TableCell>
-
-                        <TableCell align="right">
-                          <UserMoreMenu />
+                        <TableCell>
+                          <FormControl style={{ marginTop: '10px' }}>
+                            <Select
+                              labelId="demo-simple-select-label"
+                              id="demo-simple-select"
+                              value={confirmation}
+                              onChange={(e) => handleChangeDeliveryStatus(e, shopOrderID)}
+                            >
+                              <MenuItem value={0}>Chưa giao</MenuItem>
+                              <MenuItem value={1}>Giao thành công</MenuItem>
+                              <MenuItem value={2}>Giao thất bại</MenuItem>
+                            </Select>
+                          </FormControl>
                         </TableCell>
                       </TableRow>
                     );
@@ -283,7 +374,7 @@ export default function User() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={listUser.length}
+            count={listUser?.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

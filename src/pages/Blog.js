@@ -32,27 +32,32 @@ import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
 // mock
-import USERLIST from '../_mock/user';
+import { getShippingOrderDeliveryAPI, shippingOrderDeliveryAPI } from '../components/services/index';
+import SimpleDialog from './DetailOrderView';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'shippingID', label: 'shippingID', alignRight: false },
+  { id: 'shopOrderID', label: 'shopOrderID', alignRight: false },
+  { id: 'shopName', label: 'shopName', alignRight: false },
   { id: 'packageName', label: 'packageName', alignRight: false },
   { id: 'deliveryAddress', label: 'deliveryAddress', alignRight: false },
   { id: 'consigneeName', label: 'consigneeName', alignRight: false },
-  { id: 'deliveryStatus', label: 'deliveryStatus', alignRight: false },
-  { id: 'paymentStatus', label: 'paymentStatus', alignRight: false },
+  { id: 'consigneePhone ', label: 'consigneePhone ', alignRight: false },
+  { id: 'consigneeNote ', label: 'consigneeNote ', alignRight: false },
+  { id: 'deliveryStatus ', label: 'deliveryStatus ', alignRight: false },
 ];
-// id: 1,
-// shippingID: 123,
-// packageName: 'giay the thao',
-// deliveryAddress: 1,
-// consigneeName: 20,
-// deliveryStatus: 100000,
-// deliveryAddress: '99 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-// paymentStatus: true,
-// ----------------------------------------------------------------------
+// shopOrderID: '11',
+// shopName: 'MITOMO ELECTRONIC',
+// packageName: 'Máy chơi game xịn',
+// quantity: '4',
+// mass: '0.6',
+// unitPrice: '50000',
+// shippingFee: '16200',
+// totalPrice: '216200',
+// deliveryAddress: '103 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
+// shippingFeePayment: '0',
+// fullPayment: '0',
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -95,37 +100,58 @@ export default function User() {
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [statusAll, setStatusAll] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [itemProp, setItemProp] = useState({});
 
   const [listUser, setListUser] = useState([
     {
-      id: 1,
-      shippingID: 123,
-      packageName: 'giay the thao',
-      consigneeName: 20,
+      shopOrderID: '11',
+      shopName: 'MITOMO ELECTRONIC',
+      packageName: 'Máy chơi game xịn',
+      deliveryAddress: '103 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
+      consigneeName: 'Ưng Đình Chương',
+      consigneePhone: '0935997240',
+      consignneNote: 'Hàng đắt tiền, xin cẩn thận',
       deliveryStatus: 0,
-      deliveryAddress: '99 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-      paymentStatus: 0,
-    },
-    {
-      id: 2,
-      shippingID: 2,
-      packageName: 'giay the thao',
-      consigneeName: 20,
-      deliveryStatus: 0,
-      deliveryAddress: '99 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-      paymentStatus: 0,
-    },
-    {
-      id: 3,
-      shippingID: 3,
-      packageName: 'giay the thao',
-      consigneeName: 20,
-      deliveryStatus: 0,
-      deliveryAddress: '99 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-      paymentStatus: 0,
     },
   ]);
   // const [age, setAge] = useState('');
+  const getShippingOrderDelivery = async (body) => {
+    try {
+      const res = await getShippingOrderDeliveryAPI(body);
+      if (res?.data) {
+        setListUser(res?.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const shippingOrderDelivery = async (body) => {
+    try {
+      const res = await shippingOrderDeliveryAPI(body);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    const body = {
+      shipperID: 8,
+      status: statusAll,
+    };
+    getShippingOrderDelivery(body);
+  }, [statusAll]);
+
+  const handleSave = () => {
+    const body = listUser?.map((e) => ({
+      shopOrderID: e?.shopOrderID,
+      deliveryStatus: e?.deliveryStatus,
+      shipperID: 8,
+    }));
+    shippingOrderDelivery(body);
+  };
 
   const handleChange = (event, id) => {
     const temp = listUser.filter((e) => e.id === id);
@@ -139,23 +165,15 @@ export default function User() {
   };
 
   const handleChangeDeliveryStatus = (event, id) => {
-    const temp = listUser.filter((e) => e.id === id);
-    const tempArr = listUser.filter((e) => e.id !== id);
+    const temp = listUser.filter((e) => e.shopOrderID === id);
+    const tempArr = listUser.filter((e) => e.shopOrderID !== id);
     let temp1 = [];
     temp[0].deliveryStatus = event.target.value;
     temp1 = temp;
     const temp2 = [...temp1, ...tempArr];
-    temp2.sort((a, b) => a.id - b.id);
+    temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
     setListUser(temp2);
   };
-
-  useEffect(() => {
-    async function loadListUser() {
-      const res = await axios.get('http://localhost:3000/api/v1/users');
-      setListUser(res.data);
-    }
-    loadListUser();
-  }, []);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -172,21 +190,6 @@ export default function User() {
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
-    }
-    setSelected(newSelected);
-  };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -201,8 +204,8 @@ export default function User() {
   };
 
   const handleChangeStatus = (id) => {
-    const temp = listUser.filter((e) => e.id === id);
-    const tempArr = listUser.filter((e) => e.id !== id);
+    const temp = listUser.filter((e) => e.shopOrderID === id);
+    const tempArr = listUser.filter((e) => e.shopOrderID !== id);
     let temp1 = [];
     if (temp[0].paymentStatus === true) {
       temp[0].paymentStatus = false;
@@ -212,7 +215,7 @@ export default function User() {
       temp1 = temp;
     }
     const temp2 = [...temp1, ...tempArr];
-    temp2.sort((a, b) => a.id - b.id);
+    temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
     setListUser(temp2);
   };
 
@@ -229,13 +232,33 @@ export default function User() {
           <Typography variant="h4" gutterBottom>
             Xác Nhận Trạng Thái Giao Hàng
           </Typography>
-          <Button variant="contained" component={RouterLink} to="#" startIcon={<Iconify icon="eva:plus-fill" />}>
+          <Button
+            variant="contained"
+            component={RouterLink}
+            to="#"
+            startIcon={<Iconify icon="eva:plus-fill" />}
+            onClick={handleSave}
+          >
             Lưu
           </Button>
         </Stack>
 
         <Card>
-          <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          <TableCell>
+            <FormControl style={{ marginTop: '10px' }}>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={statusAll}
+                onChange={(e) => setStatusAll(e?.target?.value)}
+              >
+                <MenuItem value={0}>Tất cả</MenuItem>
+                <MenuItem value={1}>Đang giao</MenuItem>
+                <MenuItem value={2}>Thành công</MenuItem>
+                <MenuItem value={3}>Thất bại</MenuItem>
+              </Select>
+            </FormControl>
+          </TableCell>
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
@@ -252,64 +275,55 @@ export default function User() {
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const {
-                      id,
-                      shippingID,
+                      shopOrderID,
+                      shopName,
                       packageName,
                       deliveryAddress,
                       consigneeName,
+                      consigneePhone,
+                      consignneNote,
                       deliveryStatus,
-                      paymentStatus,
                     } = row;
-                    // id:1,
-                    // shippingID:123,
-                    // packageName:'giay the thao',
-                    // deliveryAddress:1,
-                    // consigneeName:20,
-                    // deliveryStatus:100000,
-                    // deliveryAddress:'99 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-                    // paymentStatus:true,
-                    // Đang để mặc đinh là active vì chưa có thuộc tính 'paymentStatus'
-                    // const paymentStatus = 'active';
 
-                    const isItemSelected = selected.indexOf(shippingID) !== -1;
+                    const isItemSelected = selected.indexOf(shopOrderID) !== -1;
 
                     return (
                       <TableRow
                         hover
-                        key={id}
+                        key={shopOrderID}
                         tabIndex={-1}
                         role="checkbox"
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
+                        onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
                       >
                         <TableCell padding="checkbox">
                           {/* <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} /> */}
                         </TableCell>
-                        {/* <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={avatarUrl} />
-                            <Typography variant="subtitle2" noWrap>
-                              {name}
-                            </Typography>
-                          </Stack>
-                        </TableCell> */}
-                        {/* const { id, shippingID, packageName, deliveryAddress, consigneeName, deliveryStatus, deliveryAddress, paymentStatus } = row; */}
-                        <TableCell align="left">{shippingID}</TableCell>
+
+                        <TableCell align="left">{shopOrderID}</TableCell>
+                        <TableCell align="left">{shopName}</TableCell>
                         <TableCell align="left">{packageName}</TableCell>
                         <TableCell align="left">{deliveryAddress}</TableCell>
                         <TableCell align="left">{consigneeName}</TableCell>
+                        <TableCell align="left">{consigneePhone}</TableCell>
+                        <Typography
+                          align="left"
+                          sx={{ maxHeight: '100px', overflow: 'hidden', margin: '16px', textOverflow: 'ellipsis' }}
+                        >
+                          {consignneNote}
+                        </Typography>
 
-                        {/* <TableCell align="left">{deliveryStatus}</TableCell> */}
-                        {/* <TableCell align="left" onClick={() => handleChangeStatus(id)}>
-                          {paymentStatus ? 'nhan' : 'huy'}
-                        </TableCell> */}
                         <TableCell>
                           <FormControl style={{ marginTop: '10px' }}>
                             <Select
                               labelId="demo-simple-select-label"
                               id="demo-simple-select"
                               value={deliveryStatus}
-                              onChange={(e) => handleChangeDeliveryStatus(e, id)}
+                              onChange={(e) => handleChangeDeliveryStatus(e, shopOrderID)}
                             >
                               <MenuItem value={0}>Chưa giao</MenuItem>
                               <MenuItem value={1}>Giao thành công</MenuItem>
@@ -317,22 +331,6 @@ export default function User() {
                             </Select>
                           </FormControl>
                         </TableCell>
-                        <TableCell>
-                          <FormControl style={{ marginTop: '10px' }}>
-                            <Select
-                              labelId="demo-simple-select-label"
-                              id="demo-simple-select"
-                              value={paymentStatus}
-                              onChange={(e) => handleChange(e, id)}
-                            >
-                              <MenuItem value={0}>Chưa thanh toán</MenuItem>
-                              <MenuItem value={1}>Đã thanh toán phí ship</MenuItem>
-                              <MenuItem value={2}>Đã thanh toán toàn bộ</MenuItem>
-                            </Select>
-                          </FormControl>
-                        </TableCell>
-
-                        {/**/}
 
                         <TableCell align="right">
                           <UserMoreMenu />
@@ -371,6 +369,7 @@ export default function User() {
           />
         </Card>
       </Container>
+      <SimpleDialog open={open} itemProp={itemProp} onClose={() => setOpen(false)} />
     </Page>
   );
 }
