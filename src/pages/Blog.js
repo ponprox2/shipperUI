@@ -103,19 +103,9 @@ export default function User() {
   const [statusAll, setStatusAll] = useState(0);
   const [open, setOpen] = useState(false);
   const [itemProp, setItemProp] = useState({});
+  const staffId = localStorage.getItem('staffID');
 
-  const [listUser, setListUser] = useState([
-    {
-      shopOrderID: '11',
-      shopName: 'MITOMO ELECTRONIC',
-      packageName: 'Máy chơi game xịn',
-      deliveryAddress: '103 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-      consigneeName: 'Ưng Đình Chương',
-      consigneePhone: '0935997240',
-      consignneNote: 'Hàng đắt tiền, xin cẩn thận',
-      deliveryStatus: 0,
-    },
-  ]);
+  const [listUser, setListUser] = useState([]);
   // const [age, setAge] = useState('');
   const getShippingOrderDelivery = async (body) => {
     try {
@@ -138,7 +128,7 @@ export default function User() {
 
   useEffect(() => {
     const body = {
-      shipperID: 8,
+      shipperID: staffId,
       status: statusAll,
     };
     getShippingOrderDelivery(body);
@@ -148,7 +138,7 @@ export default function User() {
     const body = listUser?.map((e) => ({
       shopOrderID: e?.shopOrderID,
       deliveryStatus: e?.deliveryStatus,
-      shipperID: 8,
+      shipperID: staffId,
     }));
     shippingOrderDelivery(body);
   };

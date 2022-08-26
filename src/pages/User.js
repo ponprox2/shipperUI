@@ -103,6 +103,7 @@ export default function User() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [massInput, setMassInput] = useState(0);
   const [priceInput, setPriceInput] = useState(0);
+  const staffId = localStorage.getItem('staffID')
 
   const [listUser, setListUser] = useState([
     {
@@ -141,14 +142,14 @@ export default function User() {
     const body = listUser?.map((e) => ({
       shopOrderID: e?.shopOrderID,
       confirmation: e?.confirmation,
-      shipperID: 6,
+      shipperID: staffId,
     }));
     confirmShippingOrder(body);
   };
 
   useEffect(() => {
     const body = {
-      shipperID: 6,
+      shipperID: staffId,
       mass: massInput,
       totalPrice: priceInput,
     };

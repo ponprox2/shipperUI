@@ -7,6 +7,7 @@ import { Link, Stack, Checkbox, TextField, IconButton, InputAdornment, FormContr
 import { LoadingButton } from '@mui/lab';
 import axios from 'axios';
 import Iconify from '../../../components/Iconify';
+import { loginAPI } from '../../../components/services/index';
 
 // ----------------------------------------------------------------------
 
@@ -20,8 +21,6 @@ export default function LoginForm() {
     email: Yup.string().email('Email must be a valid email address').required('Email is required'),
     password: Yup.string().required('Password is required'),
   });
-
-
 
   const formik = useFormik({
     initialValues: {
@@ -37,20 +36,21 @@ export default function LoginForm() {
   const handleShowPassword = () => {
     setShowPassword((show) => !show);
   };
-  const handleClick = () => {
-    const data = {
-      u: userName,
-      p: password,
+  const handleClick = async () => {
+    const body = {
+      username: userName,
+      pass: password,
+      idRole: 1,
     };
-    async function loginAdmin() {
-      const res = await axios.post('http://localhost:3000/api/v1/login', data);
-      // console.log(res.data);
-      if (res?.data?.message === 'Auth successful' && res?.data?.role !== 'user') {
-        localStorage.setItem('adminInfo', JSON.stringify(res.data));
+    try {
+      const res = await loginAPI(body);
+      if (res?.status === 200) {
+        localStorage.setItem('staffID', userName);
         navigate('/dashboard/app');
       }
+    } catch (error) {
+      console.log(error);
     }
-    loginAdmin();
   };
   return (
     <FormikProvider value={formik}>

@@ -7,3 +7,4 @@ export const CONFIRM_SHIPPING_ORDER = `${BASE_URL}/api/shippingOrdersConfirmatio
 
 export const GET_SHIPPING_ORDER_DELIVERING = `${BASE_URL}/api/shippingOrdersDelivering`;
 export const SHIPPING_ORDER_DELIVERING = `${BASE_URL}/api/shippingOrdersDelivering`;
+export const API_LOGIN = `${BASE_URL}/api/login`;

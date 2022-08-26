@@ -5,6 +5,7 @@ import {
   CONFIRM_SHIPPING_ORDER,
   GET_SHIPPING_ORDER_DELIVERING,
   SHIPPING_ORDER_DELIVERING,
+  API_LOGIN,
 } from './configs';
 
 export const getShippingOrderAPI = async (body) => {
@@ -53,5 +54,14 @@ export const shippingOrderDeliveryAPI = async (body) => {
     return res;
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const loginAPI = async (body) => {
+  try {
+    const response = await axios.post(API_LOGIN, body);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
   }
 };

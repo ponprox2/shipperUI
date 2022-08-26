@@ -93,7 +93,7 @@ export default function User() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [massInput, setMassInput] = useState(0);
   const [priceInput, setPriceInput] = useState(0);
-
+  const staffId = localStorage.getItem('staffID')
   const [listProduct, setListProduct] = useState([]);
 
   const getShippingOrder = async (body) => {

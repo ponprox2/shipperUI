@@ -12,17 +12,17 @@ const navConfig = [
     icon: getIcon('eva:pie-chart-2-fill'),
   },
   {
-    title: 'user',
+    title: 'Nhận - Hủy Đơn Vận Chuyển',
     path: '/dashboard/user',
     icon: getIcon('eva:people-fill'),
   },
   {
-    title: 'product',
+    title: 'Danh Sách Đơn Hàng Vận Chuyển',
     path: '/dashboard/products',
     icon: getIcon('eva:shopping-bag-fill'),
   },
   {
-    title: 'Order',
+    title: 'Xác Nhận Trạng Thái Giao Hàng',
     path: '/dashboard/order',
     icon: getIcon('eva:alert-triangle-fill'),
   },
