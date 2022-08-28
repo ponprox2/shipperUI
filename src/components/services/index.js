@@ -6,7 +6,36 @@ import {
   GET_SHIPPING_ORDER_DELIVERING,
   SHIPPING_ORDER_DELIVERING,
   API_LOGIN,
+  API_GET_TERRITORY,
+  API_GET_REGION,
+  API_SHIPPER_WORK,
 } from './configs';
+
+export const getTerritoryAPI = async () => {
+  try {
+    const response = await axios.get(API_GET_TERRITORY);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+export const updateShipperWorkAPI = async (body) => {
+  try {
+    const response = await axios.post(API_SHIPPER_WORK,body);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+
+export const getRegionAPI = async (id) => {
+  try {
+    const response = await axios.get(`${API_GET_REGION}?territoryID=${id}`);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
 
 export const getShippingOrderAPI = async (body) => {
   try {
