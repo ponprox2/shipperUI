@@ -35,16 +35,16 @@ import { getShippingOrderAPI } from '../components/services/index';
 
 const TABLE_HEAD = [
   // { id: 'stt', label: 'STT', alignRight: false },
-  { id: 'shopOrderID', label: 'shopOrderID', alignRight: false },
-  { id: 'shopName ', label: 'shopName ', alignRight: false },
-  { id: 'packageName', label: 'packageName', alignRight: false },
-  { id: 'quantity', label: 'quantity', alignRight: false },
-  { id: 'mass', label: 'mass (Kg)', alignRight: false },
-  { id: 'unitPrice', label: 'unitPrice ', alignRight: false },
-  { id: 'shippingFee ', label: 'shippingFee', alignRight: false },
-  { id: 'totalPrice ', label: 'totalPrice  ', alignRight: false },
-  { id: 'shippingFeePayment ', label: 'shippingFeePayment  ', alignRight: false },
-  { id: 'deliveryAddress', label: 'deliveryAddress', alignRight: false },
+  { id: 'shopOrderID', label: 'Mã đơn hàng', alignRight: false },
+  { id: 'shopName ', label: 'Tên cửa hàng', alignRight: false },
+  { id: 'packageName', label: 'Tên món hàng', alignRight: false },
+  { id: 'quantity', label: 'SL', alignRight: false },
+  { id: 'mass', label: 'Khối lượng(kg)', alignRight: false },
+  { id: 'unitPrice', label: 'Đơn giá(vnđ)', alignRight: false },
+  { id: 'shippingFee ', label: 'Phí vận chuyển(vnđ)', alignRight: false },
+  { id: 'totalPrice ', label: 'Tổng tiền(vnđ)', alignRight: false },
+  { id: 'shippingFeePayment ', label: 'Thanh toán phí vận chuyển', alignRight: false },
+  { id: 'deliveryAddress', label: 'Địa chỉ giao', alignRight: false },
 ];
 
 // ----------------------------------------------------------------------
@@ -192,12 +192,12 @@ export default function User() {
         <Card>
           <Box sx={{ marginLeft: '30px' }}>
             <Box sx={{ display: 'flex', marginBottom: '15px', alignItems: 'center', height: '56px' }}>
-              <Typography textAlign="center">mass (Khối lượng(Kg)) : </Typography>
+              <Typography textAlign="center">Khối lượng (kg)</Typography>
               <input
                 style={{
                   width: '120px',
                   height: '25px',
-                  marginLeft: '70px',
+                  marginLeft: '32px',
                   borderRadius: '25px',
                   padding: '5px',
                 }}
@@ -206,7 +206,7 @@ export default function User() {
               />
             </Box>
             <Box sx={{ display: 'flex' }}>
-              <Typography>totalPrice(Tổng tiền (VNĐ)) : </Typography>
+              <Typography>Tổng tiền (vnđ)</Typography>
               <input
                 style={{
                   width: '120px',
@@ -264,7 +264,7 @@ export default function User() {
                           {/* <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, shopOrderID)} /> */}
                         </TableCell>
 
-                        <TableCell align="left" onClick={() => navigate(`/dashboard/updateProduct?id=${shopOrderID}`)}>
+                        <TableCell align="left">
                           {shopOrderID}
                         </TableCell>
                         <TableCell align="left">{shopName}</TableCell>
@@ -277,7 +277,7 @@ export default function User() {
                         <TableCell align="left">{unitPrice}</TableCell>
                         <TableCell align="left">{shippingFee}</TableCell>
                         <TableCell align="left">{totalPrice}</TableCell>
-                        <TableCell align="left">{shippingFeePayment}</TableCell>
+                        <TableCell align="left">{shippingFeePayment === '0'?'Chưa':'Rồi'}</TableCell>
                         <TableCell align="left">{deliveryAddress}</TableCell>
                         {/* <Button>123</Button> */}
 

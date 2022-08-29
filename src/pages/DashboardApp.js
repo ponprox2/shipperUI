@@ -39,7 +39,7 @@ import SimpleDialog from './DetailOrderView';
 
 const TABLE_HEAD = [
   // { id: 'regionID ', label: 'Mã phường/xã', alignRight: false },
-  { id: 'description ', label: 'Mô tả', alignRight: false },
+  { id: 'description ', label: 'Phường/Xã giao hàng', alignRight: false },
 ];
 // shopOrderID: '11',
 // shopName: 'MITOMO ELECTRONIC',
@@ -94,7 +94,9 @@ export default function User() {
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [statusAll, setStatusAll] = useState(0);
+  const [statusAll, setStatusAll] = useState(1);
+
+  const[error1, setError1] = useState('');
   const [open, setOpen] = useState(false);
   const staffID = localStorage.getItem('staffID');
 
@@ -132,13 +134,22 @@ export default function User() {
     getRegion(statusAll);
   }, [statusAll]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const body = {
       shipperID: staffID,
       workTerritoryID: statusAll,
     };
-    updateShipperWorkAPI(body);
+    try {
+    const res = await updateShipperWorkAPI(body);  
+    if(res?.status ===200){
+      setError1(res.data);
+    }
+    } catch (error) {
+      setError1(error.response.data)
+    }
+   
   };
+  
 
   const handleChange = (event, id) => {
     const temp = listUser.filter((e) => e.id === id);
@@ -217,7 +228,7 @@ export default function User() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Xác Nhận Trạng Thái Giao Hàng
+          Đăng Ký Khu Vực Giao Hàng
           </Typography>
           <Button
             variant="contained"
@@ -229,14 +240,22 @@ export default function User() {
             Lưu
           </Button>
         </Stack>
-
+      <Typography>
+      {error1}
+      </Typography>
         <Card>
-          <TableCell>
-            <FormControl style={{ marginTop: '10px' }}>
+          <TableCell >
+            <Box sx={{display:'flex',alignItems:'center' }}>
+
+            <Box>
+              Khu vực giao hàng
+            </Box>
+            <FormControl style={{ marginTop: '-5px' }}>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 value={statusAll}
+                style={{ height: '30px',marginLeft:'20px'  }}
                 onChange={(e) => setStatusAll(e?.target?.value)}
               >
                 {listRegion?.map((e) => (
@@ -244,6 +263,7 @@ export default function User() {
                 ))}
               </Select>
             </FormControl>
+            </Box>
           </TableCell>
 
           <Scrollbar>
@@ -272,10 +292,10 @@ export default function User() {
                         role="checkbox"
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
-                        onClick={() => {
-                          setItemProp(row);
-                          setOpen(true);
-                        }}
+                        // onClick={() => {
+                        //   setItemProp(row);
+                        //   setOpen(true);
+                        // }}
                       >
                         <TableCell padding="checkbox">
                           {/* <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} /> */}

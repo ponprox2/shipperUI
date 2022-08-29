@@ -20,12 +20,10 @@ export const getTerritoryAPI = async () => {
   }
 };
 export const updateShipperWorkAPI = async (body) => {
-  try {
-    const response = await axios.post(API_SHIPPER_WORK,body);
-    return response;
-  } catch (error) {
-    return error?.response?.data || error;
-  }
+
+  const response = await axios.post(API_SHIPPER_WORK,body);
+  return response;
+
 };
 
 export const getRegionAPI = async (id) => {
@@ -59,12 +57,8 @@ export const getShippingOrderConfirmAPI = async (body) => {
   }
 };
 export const confirmShippingOrderAPI = async (body) => {
-  try {
     const res = await axios.post(CONFIRM_SHIPPING_ORDER, body);
     return res;
-  } catch (error) {
-    console.log(error);
-  }
 };
 
 export const getShippingOrderDeliveryAPI = async (body) => {
@@ -78,12 +72,10 @@ export const getShippingOrderDeliveryAPI = async (body) => {
   }
 };
 export const shippingOrderDeliveryAPI = async (body) => {
-  try {
+
     const res = await axios.post(SHIPPING_ORDER_DELIVERING, body);
     return res;
-  } catch (error) {
-    console.log(error);
-  }
+ 
 };
 
 export const loginAPI = async (body) => {

@@ -37,18 +37,18 @@ import { getShippingOrderConfirmAPI, confirmShippingOrderAPI } from '../componen
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'shopOrderID', label: 'shopOrderID', alignRight: false },
-  { id: 'shopName ', label: 'shopName ', alignRight: false },
-  { id: 'packageName', label: 'packageName', alignRight: false },
-  { id: 'quantity', label: 'quantity', alignRight: false },
-  { id: 'mass', label: 'mass', alignRight: false },
-  { id: 'unitPrice', label: 'unitPrice', alignRight: false },
-  { id: 'shippingFee ', label: 'shippingFee ', alignRight: false },
-  { id: 'totalPrice ', label: 'totalPrice ', alignRight: false },
-  { id: 'shippingFeePayment ', label: 'shippingFeePayment ', alignRight: false },
+  { id: 'shopOrderID', label: 'Mã đơn hàng', alignRight: false },
+  { id: 'shopName ', label: 'Tên cửa hàng ', alignRight: false },
+  { id: 'packageName', label: 'Tên món hàng', alignRight: false },
+  { id: 'quantity', label: 'SL', alignRight: false },
+  { id: 'mass', label: 'Khối lượng(kg)', alignRight: false },
+  { id: 'unitPrice', label: 'Đơn giá(vnđ)', alignRight: false },
+  { id: 'shippingFee ', label: 'Phí vận chuyển(vnđ)', alignRight: false },
+  { id: 'totalPrice ', label: 'Tổng tiền(vnđ)', alignRight: false },
+  { id: 'shippingFeePayment ', label: 'Thanh toán phí vận chuyển', alignRight: false },
 
-  { id: 'deliveryAddress', label: 'deliveryAddress', alignRight: false },
-  { id: 'confirmation ', label: 'confirmation ', alignRight: false },
+  { id: 'deliveryAddress', label: 'Địa chỉ giao', alignRight: false },
+  { id: 'confirmation ', label: 'Trạng thái xác nhận', alignRight: false },
 ];
 // id: 1,
 // shippingID: 123,
@@ -99,6 +99,7 @@ export default function User() {
   const [orderBy, setOrderBy] = useState('name');
 
   const [filterName, setFilterName] = useState('');
+  const[error1, setError1] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [massInput, setMassInput] = useState(0);
@@ -132,11 +133,15 @@ export default function User() {
   };
 
   const confirmShippingOrder = async (body) => {
-    try {
-      const res = await confirmShippingOrderAPI(body);
-    } catch (error) {
-      console.log(error);
-    }
+
+      try {
+        const res = await confirmShippingOrderAPI(body);
+          if(res?.status === 200){
+            setError1(res.data)
+          }
+        } catch (error) {
+          setError1(error.response.data)
+        }
   };
   const handleSave = () => {
     const body = listUser?.map((e) => ({
@@ -144,8 +149,12 @@ export default function User() {
       confirmation: e?.confirmation,
       shipperID: staffId,
     }));
-    confirmShippingOrder(body);
+
+      confirmShippingOrder(body);
+
   };
+
+  
 
   useEffect(() => {
     const body = {
@@ -249,16 +258,18 @@ export default function User() {
             Lưu
           </Button>
         </Stack>
-
+      <Typography>
+        {error1}
+      </Typography>
         <Card>
           <Box sx={{ marginLeft: '30px' }}>
             <Box sx={{ display: 'flex', marginBottom: '15px', alignItems: 'center', height: '56px' }}>
-              <Typography textAlign="center">mass (Khối lượng(Kg)) : </Typography>
+              <Typography textAlign="center">Khối lượng (kg)</Typography>
               <input
                 style={{
                   width: '120px',
                   height: '25px',
-                  marginLeft: '70px',
+                  marginLeft: '32px',
                   borderRadius: '25px',
                   padding: '5px',
                 }}
@@ -267,7 +278,7 @@ export default function User() {
               />
             </Box>
             <Box sx={{ display: 'flex' }}>
-              <Typography>totalPrice(Tổng tiền (VNĐ)) : </Typography>
+              <Typography>Tổng tiền (vnđ)</Typography>
               <input
                 style={{
                   width: '120px',
@@ -333,21 +344,37 @@ export default function User() {
                         <TableCell align="left">{unitPrice}</TableCell>
                         <TableCell align="left">{shippingFee}</TableCell>
                         <TableCell align="left">{totalPrice}</TableCell>
-                        <TableCell align="left">{shippingFeePayment}</TableCell>
+                        <TableCell align="left">{shippingFeePayment === '0' ? 'Chưa': 'Rồi'} </TableCell>
                         <TableCell align="left">{deliveryAddress}</TableCell>
                         <TableCell>
-                          <FormControl style={{ marginTop: '10px' }}>
+                        {
+                          confirmation === '0'?<FormControl style={{ marginTop: '10px' }}>
+                          <Select
+                            style={{ height: '30px'}}
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={confirmation}
+                            onChange={(e) => handleChangeDeliveryStatus(e, shopOrderID)}
+                          >
+                            <MenuItem value={0}>Đang Chờ</MenuItem>
+                            <MenuItem value={1}>Nhận Đơn</MenuItem>
+                            <MenuItem value={2}>Từ Chối Đơn</MenuItem>
+                          </Select>
+                        </FormControl>: <FormControl style={{ marginTop: '10px' }}>
                             <Select
+                             style={{ height: '30px'}}
                               labelId="demo-simple-select-label"
                               id="demo-simple-select"
                               value={confirmation}
                               onChange={(e) => handleChangeDeliveryStatus(e, shopOrderID)}
                             >
-                              <MenuItem value={0}>Chưa giao</MenuItem>
-                              <MenuItem value={1}>Giao thành công</MenuItem>
-                              <MenuItem value={2}>Giao thất bại</MenuItem>
+                              <MenuItem value={1}>Nhận Đơn</MenuItem>
+                              <MenuItem value={2}>Từ Chối Đơn</MenuItem>
                             </Select>
                           </FormControl>
+                        }
+
+                          
                         </TableCell>
                       </TableRow>
                     );
