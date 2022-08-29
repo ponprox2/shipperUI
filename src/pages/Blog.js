@@ -103,7 +103,7 @@ export default function User() {
   const [statusAll, setStatusAll] = useState(0);
   const [open, setOpen] = useState(false);
   const [itemProp, setItemProp] = useState({});
-  const [error1, setError1] = useState("");
+  const [error1, setError1] = useState('');
   const staffId = localStorage.getItem('staffID');
 
   const [listUser, setListUser] = useState([]);
@@ -122,12 +122,11 @@ export default function User() {
   const shippingOrderDelivery = async (body) => {
     try {
       const res = await shippingOrderDeliveryAPI(body);
-      if(res?.status === 200){
-        setError1(res.data)
+      if (res?.status === 200) {
+        setError1(res.data);
       }
     } catch (error) {
-      setError1(error.response.data)
-      
+      setError1(error.response.data);
     }
   };
 
@@ -146,9 +145,8 @@ export default function User() {
       shipperID: staffId,
     }));
 
-   shippingOrderDelivery(body);
-      // if(res?.status !==200){
-    
+    shippingOrderDelivery(body);
+    // if(res?.status !==200){
   };
 
   const handleChange = (event, id) => {
@@ -228,49 +226,32 @@ export default function User() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-           Giao Hàng
+            Giao Hàng
           </Typography>
-          <Button
-            variant="contained"
-            component={RouterLink}
-            to="#"
-            startIcon={<Iconify icon="eva:plus-fill" />}
-            onClick={handleSave}
-          >
+          <Button variant="contained" onClick={handleSave}>
             Lưu
           </Button>
         </Stack>
-        <Typography>
-      {error1}
-    </Typography>
+        <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
+          <Typography style={{ marginTop: '10px' }}>Trạng thái giao hàng</Typography>
+          <FormControl style={{ marginTop: '10px', marginLeft: '30px' }}>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              style={{ height: '30px' }}
+              value={statusAll}
+              onChange={(e) => setStatusAll(e?.target?.value)}
+            >
+              <MenuItem value={0}>Tất cả</MenuItem>
+              <MenuItem value={1}>Đang giao</MenuItem>
+              <MenuItem value={2}>Thành công</MenuItem>
+              <MenuItem value={3}>Thất bại</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
         <Card>
-
-
-
-
-
-       
-          <TableCell>
-          <Box sx={{display:'flex',alignItems:'center' }}>
-
-<Typography style={{ marginTop: '10px' }}>Trạng thái giao hàng</Typography>
-            <FormControl style={{ marginTop: '10px', marginLeft: '30px' }}>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                style={{ height: '30px' }}
-                value={statusAll}
-                onChange={(e) => setStatusAll(e?.target?.value)}
-              >
-                <MenuItem value={0}>Tất cả</MenuItem>
-                <MenuItem value={1}>Đang giao</MenuItem>
-                <MenuItem value={2}>Thành công</MenuItem>
-                <MenuItem value={3}>Thất bại</MenuItem>
-              </Select>
-            </FormControl>
-            </Box>
-          </TableCell>
-
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
@@ -329,36 +310,34 @@ export default function User() {
                         </Typography>
 
                         <TableCell>
-                          {
-                            deliveryStatus === 1 ? (
-                              <FormControl style={{ marginTop: '10px' }}>
+                          {deliveryStatus === 1 ? (
+                            <FormControl style={{ marginTop: '10px' }}>
                               <Select
-                              style={{ height: '30px'}}
+                                style={{ height: '30px' }}
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
                                 value={deliveryStatus}
                                 onChange={(e) => handleChangeDeliveryStatus(e, shopOrderID)}
                               >
-                                 <MenuItem value={1}>Chưa giao</MenuItem>
+                                <MenuItem value={1}>Chưa giao</MenuItem>
                                 <MenuItem value={2}>Giao thành công</MenuItem>
                                 <MenuItem value={3}>Giao thất bại</MenuItem>
                               </Select>
                             </FormControl>
-                            ): <FormControl style={{ marginTop: '10px' }}>
-                            <Select
-                            style={{ height: '30px'}}
-                              labelId="demo-simple-select-label"
-                              id="demo-simple-select"
-                              value={deliveryStatus}
-                              onChange={(e) => handleChangeDeliveryStatus(e, shopOrderID)}
-                            >
-                            
-                              <MenuItem value={2}>Giao thành công</MenuItem>
-                              <MenuItem value={3}>Giao thất bại</MenuItem>
-                            </Select>
-                          </FormControl>
-                          }
-                         
+                          ) : (
+                            <FormControl style={{ marginTop: '10px' }}>
+                              <Select
+                                style={{ height: '30px' }}
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={deliveryStatus}
+                                onChange={(e) => handleChangeDeliveryStatus(e, shopOrderID)}
+                              >
+                                <MenuItem value={2}>Giao thành công</MenuItem>
+                                <MenuItem value={3}>Giao thất bại</MenuItem>
+                              </Select>
+                            </FormControl>
+                          )}
                         </TableCell>
 
                         <TableCell align="right">

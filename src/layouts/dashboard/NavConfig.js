@@ -14,7 +14,7 @@ const navConfig = [
   {
     title: 'Danh Sách Đơn Hàng Vận Chuyển',
     path: '/dashboard/products',
-   // icon: getIcon('eva:shopping-bag-fill'),
+    // icon: getIcon('eva:shopping-bag-fill'),
   },
   {
     title: 'Nhận - Hủy Đơn Vận Chuyển',
@@ -25,7 +25,7 @@ const navConfig = [
   {
     title: 'Giao Hàng',
     path: '/dashboard/order',
-  //  icon: getIcon('eva:alert-triangle-fill'),
+    //  icon: getIcon('eva:alert-triangle-fill'),
   },
   // {
   //   title: 'blog',
@@ -34,8 +34,8 @@ const navConfig = [
   // },
   {
     title: 'logout',
-    path: '/logout',
- //   icon: getIcon('eva:lock-fill'),
+    path: '/login',
+    //   icon: getIcon('eva:lock-fill'),
   },
   // {
   //   title: 'register',

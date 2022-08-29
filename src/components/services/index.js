@@ -9,6 +9,7 @@ import {
   API_GET_TERRITORY,
   API_GET_REGION,
   API_SHIPPER_WORK,
+  API_REGISTER
 } from './configs';
 
 export const getTerritoryAPI = async () => {
@@ -81,6 +82,14 @@ export const shippingOrderDeliveryAPI = async (body) => {
 export const loginAPI = async (body) => {
   try {
     const response = await axios.post(API_LOGIN, body);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+export const registerAPI = async (body) => {
+  try {
+    const response = await axios.post(API_REGISTER, body);
     return response;
   } catch (error) {
     return error?.response?.data || error;

@@ -96,7 +96,7 @@ export default function User() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [statusAll, setStatusAll] = useState(1);
 
-  const[error1, setError1] = useState('');
+  const [error1, setError1] = useState('');
   const [open, setOpen] = useState(false);
   const staffID = localStorage.getItem('staffID');
 
@@ -140,16 +140,14 @@ export default function User() {
       workTerritoryID: statusAll,
     };
     try {
-    const res = await updateShipperWorkAPI(body);  
-    if(res?.status ===200){
-      setError1(res.data);
-    }
+      const res = await updateShipperWorkAPI(body);
+      if (res?.status === 200) {
+        setError1(res.data);
+      }
     } catch (error) {
-      setError1(error.response.data)
+      setError1(error.response.data);
     }
-   
   };
-  
 
   const handleChange = (event, id) => {
     const temp = listUser.filter((e) => e.id === id);
@@ -228,44 +226,30 @@ export default function User() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-          Đăng Ký Khu Vực Giao Hàng
+            Đăng Ký Khu Vực Giao Hàng
           </Typography>
-          <Button
-            variant="contained"
-            component={RouterLink}
-            to="#"
-            startIcon={<Iconify icon="eva:plus-fill" />}
-            onClick={handleSave}
-          >
+          <Button variant="contained" onClick={handleSave}>
             Lưu
           </Button>
         </Stack>
-      <Typography>
-      {error1}
-      </Typography>
+        <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
+          <Box>Khu vực giao hàng</Box>
+          <FormControl style={{ marginTop: '-5px' }}>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={statusAll}
+              style={{ height: '30px', marginLeft: '20px' }}
+              onChange={(e) => setStatusAll(e?.target?.value)}
+            >
+              {listRegion?.map((e) => (
+                <MenuItem value={e?.territoryID}>{e?.description}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
         <Card>
-          <TableCell >
-            <Box sx={{display:'flex',alignItems:'center' }}>
-
-            <Box>
-              Khu vực giao hàng
-            </Box>
-            <FormControl style={{ marginTop: '-5px' }}>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={statusAll}
-                style={{ height: '30px',marginLeft:'20px'  }}
-                onChange={(e) => setStatusAll(e?.target?.value)}
-              >
-                {listRegion?.map((e) => (
-                  <MenuItem value={e?.territoryID}>{e?.description}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            </Box>
-          </TableCell>
-
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
@@ -282,12 +266,12 @@ export default function User() {
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { description, regionID } = row;
 
-                    const isItemSelected = selected.indexOf(description) !== -1;
+                    const isItemSelected = selected.indexOf(regionID) !== -1;
 
                     return (
                       <TableRow
                         hover
-                        key={description}
+                        key={regionID}
                         tabIndex={-1}
                         role="checkbox"
                         selected={isItemSelected}
@@ -302,10 +286,6 @@ export default function User() {
                         </TableCell>
 
                         <TableCell align="left">{regionID === '0' ? null : description}</TableCell>
-
-                        <TableCell align="right">
-                          <UserMoreMenu />
-                        </TableCell>
                       </TableRow>
                     );
                   })}

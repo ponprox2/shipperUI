@@ -99,12 +99,12 @@ export default function User() {
   const [orderBy, setOrderBy] = useState('name');
 
   const [filterName, setFilterName] = useState('');
-  const[error1, setError1] = useState('');
+  const [error1, setError1] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [massInput, setMassInput] = useState(0);
   const [priceInput, setPriceInput] = useState(0);
-  const staffId = localStorage.getItem('staffID')
+  const staffId = localStorage.getItem('staffID');
 
   const [listUser, setListUser] = useState([
     {
@@ -133,15 +133,14 @@ export default function User() {
   };
 
   const confirmShippingOrder = async (body) => {
-
-      try {
-        const res = await confirmShippingOrderAPI(body);
-          if(res?.status === 200){
-            setError1(res.data)
-          }
-        } catch (error) {
-          setError1(error.response.data)
-        }
+    try {
+      const res = await confirmShippingOrderAPI(body);
+      if (res?.status === 200) {
+        setError1(res.data);
+      }
+    } catch (error) {
+      setError1(error.response.data);
+    }
   };
   const handleSave = () => {
     const body = listUser?.map((e) => ({
@@ -150,11 +149,8 @@ export default function User() {
       shipperID: staffId,
     }));
 
-      confirmShippingOrder(body);
-
+    confirmShippingOrder(body);
   };
-
-  
 
   useEffect(() => {
     const body = {
@@ -248,19 +244,11 @@ export default function User() {
           <Typography variant="h4" gutterBottom>
             Nhận - Hủy Đơn Vận Chuyển
           </Typography>
-          <Button
-            variant="contained"
-            component={RouterLink}
-            to="#"
-            startIcon={<Iconify icon="eva:plus-fill" />}
-            onClick={handleSave}
-          >
+          <Button variant="contained" onClick={handleSave}>
             Lưu
           </Button>
         </Stack>
-      <Typography>
-        {error1}
-      </Typography>
+        <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
         <Card>
           <Box sx={{ marginLeft: '30px' }}>
             <Box sx={{ display: 'flex', marginBottom: '15px', alignItems: 'center', height: '56px' }}>
@@ -344,37 +332,37 @@ export default function User() {
                         <TableCell align="left">{unitPrice}</TableCell>
                         <TableCell align="left">{shippingFee}</TableCell>
                         <TableCell align="left">{totalPrice}</TableCell>
-                        <TableCell align="left">{shippingFeePayment === '0' ? 'Chưa': 'Rồi'} </TableCell>
+                        <TableCell align="left">{shippingFeePayment === '0' ? 'Chưa' : 'Rồi'} </TableCell>
                         <TableCell align="left">{deliveryAddress}</TableCell>
                         <TableCell>
-                        {
-                          confirmation === '0'?<FormControl style={{ marginTop: '10px' }}>
-                          <Select
-                            style={{ height: '30px'}}
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={confirmation}
-                            onChange={(e) => handleChangeDeliveryStatus(e, shopOrderID)}
-                          >
-                            <MenuItem value={0}>Đang Chờ</MenuItem>
-                            <MenuItem value={1}>Nhận Đơn</MenuItem>
-                            <MenuItem value={2}>Từ Chối Đơn</MenuItem>
-                          </Select>
-                        </FormControl>: <FormControl style={{ marginTop: '10px' }}>
-                            <Select
-                             style={{ height: '30px'}}
-                              labelId="demo-simple-select-label"
-                              id="demo-simple-select"
-                              value={confirmation}
-                              onChange={(e) => handleChangeDeliveryStatus(e, shopOrderID)}
-                            >
-                              <MenuItem value={1}>Nhận Đơn</MenuItem>
-                              <MenuItem value={2}>Từ Chối Đơn</MenuItem>
-                            </Select>
-                          </FormControl>
-                        }
-
-                          
+                          {confirmation === '0' ? (
+                            <FormControl style={{ marginTop: '10px' }}>
+                              <Select
+                                style={{ height: '30px' }}
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={confirmation}
+                                onChange={(e) => handleChangeDeliveryStatus(e, shopOrderID)}
+                              >
+                                <MenuItem value={0}>Đang Chờ</MenuItem>
+                                <MenuItem value={1}>Nhận Đơn</MenuItem>
+                                <MenuItem value={2}>Từ Chối Đơn</MenuItem>
+                              </Select>
+                            </FormControl>
+                          ) : (
+                            <FormControl style={{ marginTop: '10px' }}>
+                              <Select
+                                style={{ height: '30px' }}
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={confirmation}
+                                onChange={(e) => handleChangeDeliveryStatus(e, shopOrderID)}
+                              >
+                                <MenuItem value={1}>Nhận Đơn</MenuItem>
+                                <MenuItem value={2}>Từ Chối Đơn</MenuItem>
+                              </Select>
+                            </FormControl>
+                          )}
                         </TableCell>
                       </TableRow>
                     );
