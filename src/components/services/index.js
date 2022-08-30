@@ -39,7 +39,7 @@ export const getRegionAPI = async (id) => {
 export const getShippingOrderAPI = async (body) => {
   try {
     const res = await axios.get(
-      `${GET_SHIPPING_ORDER}?territoryID=${body?.territoryID}&mass=${body?.mass}&totalPrice=${body?.totalPrice}`
+      `${GET_SHIPPING_ORDER}?shipperID=${body?.shipperID}&mass=${body?.mass}&totalPrice=${body?.totalPrice}`
     );
     return res;
   } catch (error) {
@@ -80,18 +80,10 @@ export const shippingOrderDeliveryAPI = async (body) => {
 };
 
 export const loginAPI = async (body) => {
-  try {
     const response = await axios.post(API_LOGIN, body);
     return response;
-  } catch (error) {
-    return error?.response?.data || error;
-  }
 };
 export const registerAPI = async (body) => {
-  try {
     const response = await axios.post(API_REGISTER, body);
     return response;
-  } catch (error) {
-    return error?.response?.data || error;
-  }
 };

@@ -93,8 +93,8 @@ export default function User() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [massInput, setMassInput] = useState(0);
   const [priceInput, setPriceInput] = useState(0);
-  const staffId = localStorage.getItem('staffID')
   const [listProduct, setListProduct] = useState([]);
+  const staffId = localStorage.getItem('staffID');
 
   const getShippingOrder = async (body) => {
     try {
@@ -109,7 +109,7 @@ export default function User() {
 
   useEffect(() => {
     const body = {
-      territoryID: '1',
+      shipperID: staffId,
       mass: massInput,
       totalPrice: priceInput,
     };
@@ -188,8 +188,7 @@ export default function User() {
             Danh Sách Đơn Hàng Vận Chuyển
           </Typography>
         </Stack>
-
-        <Card>
+         <Card>
           <Box sx={{ marginLeft: '30px' }}>
             <Box sx={{ display: 'flex', marginBottom: '15px', alignItems: 'center', height: '56px' }}>
               <Typography textAlign="center">Khối lượng (kg)</Typography>

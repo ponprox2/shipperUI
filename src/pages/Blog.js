@@ -123,10 +123,10 @@ export default function User() {
     try {
       const res = await shippingOrderDeliveryAPI(body);
       if (res?.status === 200) {
-        setError1(res.data);
+        setError1(res?.data);
       }
     } catch (error) {
-      setError1(error.response.data);
+      setError1(error?.response.data);
     }
   };
 

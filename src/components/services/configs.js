@@ -1,4 +1,4 @@
-const BASE_URL = 'http://192.168.1.10:8180';
+const BASE_URL = 'http://192.168.1.3:8180';
 
 export const GET_SHIPPING_ORDER = `${BASE_URL}/api/shippingOrders`;
 

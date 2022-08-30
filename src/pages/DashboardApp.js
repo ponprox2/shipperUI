@@ -145,7 +145,7 @@ export default function User() {
         setError1(res.data);
       }
     } catch (error) {
-      setError1(error.response.data);
+      setError1(error?.response.data);
     }
   };
 
