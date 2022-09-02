@@ -21,17 +21,23 @@ const navConfig = [
     path: '/dashboard/user',
     // icon: getIcon('eva:people-fill'),
   },
-
   {
     title: 'Giao Hàng',
     path: '/dashboard/order',
-    //  icon: getIcon('eva:alert-triangle-fill'),
   },
-  // {
-  //   title: 'blog',
-  //   path: '/dashboard/blog',
-  //   icon: getIcon('eva:file-text-fill'),
-  // },
+  {
+    title: 'Hủy Đơn Lấy Hàng',
+    path: '/dashboard/declinePickup',
+  },
+  {
+    title: 'Lấy Hàng',
+    path: '/dashboard/pickup',
+  },
+  {
+    title: 'Hủy Đơn Giao Hàng',
+    path: '/dashboard/declineDelevery',
+  },
+
   {
     title: 'logout',
     path: '/login',

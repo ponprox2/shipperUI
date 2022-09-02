@@ -5,6 +5,7 @@ import LogoOnlyLayout from './layouts/LogoOnlyLayout';
 //
 import Blog from './pages/Blog';
 import User from './pages/User';
+import DeclinePickup from './pages/declinePickup';
 import Login from './pages/Login';
 import NotFound from './pages/Page404';
 import Register from './pages/Register';
@@ -26,6 +27,9 @@ export default function Router() {
         { path: 'user', element: <User /> },
         { path: 'products', element: <Products /> },
         { path: 'order', element: <Blog /> },
+        { path: 'declinePickup', element: <DeclinePickup /> },
+        { path: 'pickup', element: <Blog /> },
+        { path: 'declineDelevery', element: <Blog /> },
         // { path: 'login', element: <Login /> },
         { path: 'addProduct', element: <AddProduct /> },
         { path: 'register', element: <Register /> },

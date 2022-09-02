@@ -9,7 +9,8 @@ import {
   API_GET_TERRITORY,
   API_GET_REGION,
   API_SHIPPER_WORK,
-  API_REGISTER
+  API_REGISTER,
+  API_PICKUP_CONFIRMATION,
 } from './configs';
 
 export const getTerritoryAPI = async () => {
@@ -21,10 +22,8 @@ export const getTerritoryAPI = async () => {
   }
 };
 export const updateShipperWorkAPI = async (body) => {
-
-  const response = await axios.post(API_SHIPPER_WORK,body);
+  const response = await axios.post(API_SHIPPER_WORK, body);
   return response;
-
 };
 
 export const getRegionAPI = async (id) => {
@@ -58,8 +57,8 @@ export const getShippingOrderConfirmAPI = async (body) => {
   }
 };
 export const confirmShippingOrderAPI = async (body) => {
-    const res = await axios.post(CONFIRM_SHIPPING_ORDER, body);
-    return res;
+  const res = await axios.post(CONFIRM_SHIPPING_ORDER, body);
+  return res;
 };
 
 export const getShippingOrderDeliveryAPI = async (body) => {
@@ -73,17 +72,27 @@ export const getShippingOrderDeliveryAPI = async (body) => {
   }
 };
 export const shippingOrderDeliveryAPI = async (body) => {
-
-    const res = await axios.post(SHIPPING_ORDER_DELIVERING, body);
-    return res;
- 
+  const res = await axios.post(SHIPPING_ORDER_DELIVERING, body);
+  return res;
 };
 
 export const loginAPI = async (body) => {
-    const response = await axios.post(API_LOGIN, body);
-    return response;
+  const response = await axios.post(API_LOGIN, body);
+  return response;
 };
 export const registerAPI = async (body) => {
-    const response = await axios.post(API_REGISTER, body);
-    return response;
+  const response = await axios.post(API_REGISTER, body);
+  return response;
+};
+
+export const updatePickupConfirmationAPI = async (body) => {
+  const response = await axios.post(API_PICKUP_CONFIRMATION, body);
+  return response;
+};
+
+export const pickupConfirmationAPI = async (body) => {
+  const response = await axios.get(
+    `${API_PICKUP_CONFIRMATION}?shipperID=${body?.shipperID}&mass=${body?.mass}&totalPrice=${body?.totalPrice}`
+  );
+  return response;
 };

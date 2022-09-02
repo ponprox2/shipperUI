@@ -1,4 +1,4 @@
-const BASE_URL = 'http://192.168.1.3:8180';
+const BASE_URL = 'http://192.168.1.4:8180';
 
 export const GET_SHIPPING_ORDER = `${BASE_URL}/api/shippingOrders`;
 
@@ -15,3 +15,4 @@ export const API_GET_TERRITORY = `${BASE_URL}/api/territories`;
 export const API_GET_REGION = `${BASE_URL}/api/regions`;
 export const API_SHIPPER_WORK = `${BASE_URL}/api/shipperWork`;
 
+export const API_PICKUP_CONFIRMATION = `${BASE_URL}/api/pickUpConfirmation`;
