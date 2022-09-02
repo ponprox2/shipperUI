@@ -11,6 +11,7 @@ import {
   API_SHIPPER_WORK,
   API_REGISTER,
   API_PICKUP_CONFIRMATION,
+  API_PICKUP_ORDERS,
 } from './configs';
 
 export const getTerritoryAPI = async () => {
@@ -94,5 +95,15 @@ export const pickupConfirmationAPI = async (body) => {
   const response = await axios.get(
     `${API_PICKUP_CONFIRMATION}?shipperID=${body?.shipperID}&mass=${body?.mass}&totalPrice=${body?.totalPrice}`
   );
+  return response;
+};
+
+export const updatePickUpOrderAPI = async (body) => {
+  const response = await axios.post(API_PICKUP_ORDERS, body);
+  return response;
+};
+
+export const pickupOrderAPI = async (shipperID) => {
+  const response = await axios.get(`${API_PICKUP_ORDERS}?shipperID=${shipperID}`);
   return response;
 };

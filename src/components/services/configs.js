@@ -2,8 +2,8 @@ const BASE_URL = 'http://192.168.1.4:8180';
 
 export const GET_SHIPPING_ORDER = `${BASE_URL}/api/shippingOrders`;
 
-export const GET_SHIPPING_ORDER_CONFIRM = `${BASE_URL}/api/shippingOrdersConfirmation`;
-export const CONFIRM_SHIPPING_ORDER = `${BASE_URL}/api/shippingOrdersConfirmation`;
+export const GET_SHIPPING_ORDER_CONFIRM = `${BASE_URL}/api/deliveryConfirmation`;
+export const CONFIRM_SHIPPING_ORDER = `${BASE_URL}/api/deliveryConfirmation`;
 
 export const GET_SHIPPING_ORDER_DELIVERING = `${BASE_URL}/api/shippingOrdersDelivering`;
 export const SHIPPING_ORDER_DELIVERING = `${BASE_URL}/api/shippingOrdersDelivering`;
@@ -16,3 +16,5 @@ export const API_GET_REGION = `${BASE_URL}/api/regions`;
 export const API_SHIPPER_WORK = `${BASE_URL}/api/shipperWork`;
 
 export const API_PICKUP_CONFIRMATION = `${BASE_URL}/api/pickUpConfirmation`;
+
+export const API_PICKUP_ORDERS = `${BASE_URL}/api/pickingUpOrders`;

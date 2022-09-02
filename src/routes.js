@@ -14,6 +14,7 @@ import DashboardApp from './pages/DashboardApp';
 import AddProduct from './pages/addProduct';
 import DetailOrder from './pages/detailOrder';
 import UpdProduct from './pages/updateProduct';
+import Pickup from './pages/Pickup';
 
 // ----------------------------------------------------------------------
 
@@ -28,7 +29,7 @@ export default function Router() {
         { path: 'products', element: <Products /> },
         { path: 'order', element: <Blog /> },
         { path: 'declinePickup', element: <DeclinePickup /> },
-        { path: 'pickup', element: <Blog /> },
+        { path: 'pickup', element: <Pickup /> },
         { path: 'declineDelevery', element: <Blog /> },
         // { path: 'login', element: <Login /> },
         { path: 'addProduct', element: <AddProduct /> },

@@ -17,7 +17,7 @@ const navConfig = [
     // icon: getIcon('eva:shopping-bag-fill'),
   },
   {
-    title: 'Nhận - Hủy Đơn Vận Chuyển',
+    title: 'Hủy Đơn Giao Hàng',
     path: '/dashboard/user',
     // icon: getIcon('eva:people-fill'),
   },
@@ -33,10 +33,10 @@ const navConfig = [
     title: 'Lấy Hàng',
     path: '/dashboard/pickup',
   },
-  {
-    title: 'Hủy Đơn Giao Hàng',
-    path: '/dashboard/declineDelevery',
-  },
+  // {
+  //   title: 'Hủy Đơn Giao Hàng',
+  //   path: '/dashboard/declineDelevery',
+  // },
 
   {
     title: 'logout',
