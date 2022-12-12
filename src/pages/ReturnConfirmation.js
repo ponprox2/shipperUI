@@ -32,7 +32,7 @@ import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
 // mock
-import { getShippingOrderConfirmAPI, confirmShippingOrderAPI } from '../components/services/index';
+import { getReturnConfirmationAPI, updateReturnConfirmationAPI } from '../components/services/index';
 import SimpleDialog from './DetailOrderView';
 import DialogApp from './Dialog';
 import ConfirmDlg from './ConfirmDlg';
@@ -42,7 +42,7 @@ import ConfirmDlg from './ConfirmDlg';
 const TABLE_HEAD = [
   { id: 'shopOrderID', label: 'Mã đơn hàng', alignRight: false },
   { id: 'packageName', label: 'Tên món hàng', alignRight: false },
-  { id: 'deliveryAddress', label: 'Địa chỉ giao', alignRight: false },
+  { id: 'deliveryAddress', label: 'Địa chỉ trả', alignRight: false },
   { id: 'mass', label: 'Khối lượng (Kg)', alignRight: false },
   { id: 'totalPrice ', label: 'Tổng giá trị đơn hàng (VND)', alignRight: false },
   { id: 'statusDescription ', label: 'Trạng thái đơn hàng', alignRight: false },
@@ -112,7 +112,7 @@ export default function User() {
       unitPrice: '',
       shippingFee: '',
       totalPrice: '',
-      deliveryAddress: '',
+      shopAddress: '',
       shippingFeePayment: '',
       fullPayment: '',
       consigneeName: '',
@@ -130,18 +130,30 @@ export default function User() {
     handleSave();
   }
 
-  const getShippingOrderConfirm = async (body) => {
+  const getShopOrders = async () => {
+    const body = {
+        shipperID: staffId,
+        mass: massInput,
+        totalPrice: priceInput,
+      };
+
     try {
-      const res = await getShippingOrderConfirmAPI(body);
+      const res = await getReturnConfirmationAPI(body);
       setListUser(res?.data);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const confirmShippingOrder = async (body) => {
+  const updateShopOrders = async () => {
+    const body = {
+        shopOrderID: inputValues.shopOrderID,
+        confirmation: inputValues.inputConfirmation,
+        shipperID: staffId,
+      };
+
     try {
-      const res = await confirmShippingOrderAPI(body);
+      const res = await updateReturnConfirmationAPI(body);
       if (res?.status === 200) {
         setOpenToast(true);
         setSeverity('success');
@@ -160,22 +172,17 @@ export default function User() {
     //			  confirmation: e?.confirmation,
     //			  shipperID: staffId,
     //			}));
-    const body = [{
-      shopOrderID: inputValues.shopOrderID,
-      confirmation: inputValues.inputConfirmation,
-      shipperID: staffId,
-    }]
+    // const body = [{
+    //   shopOrderID: inputValues.shopOrderID,
+    //   confirmation: inputValues.inputConfirmation,
+    //   shipperID: staffId,
+    // }]
 
-    confirmShippingOrder(body);
+    updateShopOrders();
   };
 
   useEffect(() => {
-    const body = {
-      shipperID: staffId,
-      mass: massInput,
-      totalPrice: priceInput,
-    };
-    getShippingOrderConfirm(body);
+    getShopOrders();
   }, [massInput, priceInput, reCall]);
 
   const handleRequestSort = (event, property) => {
@@ -265,15 +272,12 @@ export default function User() {
   };
 
   return (
-    <Page title="Xác Nhận Đơn Giao Hàng">
+    <Page title="Xác Nhận Đơn Trả Hàng">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-          Xác Nhận Đơn Giao Hàng
+          Xác Nhận Đơn Trả Hàng
           </Typography>
-          {/* <Button variant="contained" onClick={handleSave}>
-            Lưu
-          </Button> */}
         </Stack>
         {/* <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography> */}
         <Box>
@@ -330,7 +334,7 @@ export default function User() {
                       unitPrice,
                       shippingFee,
                       totalPrice,
-                      deliveryAddress,
+                      shopAddress,
                       shippingFeePayment,
                       fullPayment,
                       consigneeName,
@@ -367,14 +371,11 @@ export default function User() {
                         <TableCell align="left" onClick={() => {
                           setItemProp(row);
                           setOpen(true);
-                        }}>{deliveryAddress}</TableCell>
+                        }}>{shopAddress}</TableCell>
                         <TableCell align="left" onClick={() => {
                           setItemProp(row);
                           setOpen(true);
                         }}>{mass}</TableCell>
-                        {/* <TableCell align="left" onClick={() => handleChangeStatus(id)}>
-                          {status ? 'xuat' : 'nhap'}
-                        </TableCell> */}
                         <TableCell align="left" onClick={() => {
                           setItemProp(row);
                           setOpen(true);
@@ -463,8 +464,6 @@ export default function User() {
                                   </FormControl>
                                   )
                                 }
-
-
                         </TableCell>
                       </TableRow>
                     );
@@ -514,7 +513,7 @@ export default function User() {
         title="Thông Báo"
         open={openConfirm}
         setOpen={setOpenConfirm}
-        onConfirm={handleOnConfirm}
+        onConfirm={updateShopOrders}
       >
         Bạn có chắc sẽ xác nhận đơn hàng này?
       </ConfirmDlg>

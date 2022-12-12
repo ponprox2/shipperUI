@@ -3,29 +3,30 @@ import { Link as RouterLink,useNavigate} from 'react-router-dom';
 // @mui
 import { alpha } from '@mui/material/styles';
 import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton } from '@mui/material';
+//  import Account from 'src/_mock/account';
+
 // components
 import MenuPopover from '../../components/MenuPopover';
 // mocks_
-import account from '../../_mock/account';
 
 // ----------------------------------------------------------------------
 
 const MENU_OPTIONS = [
-  {
-    label: 'Home',
-    icon: 'eva:home-fill',
-    linkTo: '/',
-  },
+  // {
+  //   label: 'Home',
+  //   icon: 'eva:home-fill',
+  //   linkTo: '/',
+  // },
   {
     label: 'Profile',
     icon: 'eva:person-fill',
-    linkTo: '#',
+    linkTo: '/dashboard/staffInfo',
   },
-  {
-    label: 'Settings',
-    icon: 'eva:settings-2-fill',
-    linkTo: '#',
-  },
+  // {
+  //   label: 'Settings',
+  //   icon: 'eva:settings-2-fill',
+  //   linkTo: '#',
+  // },
 ];
 
 // ----------------------------------------------------------------------
@@ -44,8 +45,13 @@ export default function AccountPopover() {
   };
   const handleLogOut = ()=>{
     localStorage.setItem('adminInfo', JSON.stringify(''));
+    // localStorage.setItem("", null);
+    localStorage.removeItem('accountData');
     navigate("/login")
   }
+
+  const account = JSON.parse(localStorage.getItem("accountData") || "[]");
+
   return (
     <>
       <IconButton
@@ -85,10 +91,10 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant="subtitle2" noWrap>
-            {account.displayName}
+            ID : {account.staffID}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {account.email}
+            {account.name}
           </Typography>
         </Box>
 

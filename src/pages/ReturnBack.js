@@ -32,27 +32,22 @@ import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
 // mock
-import { updateShipperWorkAPI, getTerritoryAPI, getRegionAPI,staffInfoAPI } from '../components/services/index';
+import { updateReturnBackAPI, getReturnBackAPI } from '../components/services/index';
 import SimpleDialog from './DetailOrderView';
 import DialogApp from './Dialog';
 import ConfirmDlg from './ConfirmDlg';
+
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  // { id: 'regionID ', label: 'Mã phường/xã', alignRight: false },
-  { id: 'description ', label: 'Phường/xã vận chuyển', alignRight: false },
+  { id: 'shopOrderID', label: 'Mã đơn hàng', alignRight: false },
+  { id: 'packageName', label: 'Tên món hàng', alignRight: false },
+  { id: 'shopAddress', label: 'Địa chỉ cửa hàng', alignRight: false },
+  { id: 'mass', label: 'Khối lượng (Kg)', alignRight: false },
+  { id: 'totalPrice ', label: 'Tổng giá trị đơn hàng (VND)', alignRight: false },
+  { id: 'statusDescription ', label: 'Trạng thái đơn hàng', alignRight: false },
+  { id: 'confirmation ', label: 'Xác nhận', alignRight: false },
 ];
-// shopOrderID: '11',
-// shopName: 'MITOMO ELECTRONIC',
-// packageName: 'Máy chơi game xịn',
-// quantity: '4',
-// mass: '0.6',
-// unitPrice: '50000',
-// shippingFee: '16200',
-// totalPrice: '216200',
-// deliveryAddress: '103 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-// shippingFeePayment: '0',
-// fullPayment: '0',
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -95,84 +90,40 @@ export default function User() {
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const accountData = JSON.parse(localStorage.getItem("accountData") || "[]");
-  let defaultWorkingTerritoryID = 1;
-  
-  if(accountData.workingTerritoryID !== undefined){
-    defaultWorkingTerritoryID = accountData.workingTerritoryID;
-  }
-
-  const [statusAll, setStatusAll] = useState(defaultWorkingTerritoryID);
-
-
-  const [error1, setError1] = useState('');
+  const [statusAll, setStatusAll] = useState(0);
   const [open, setOpen] = useState(false);
-  const staffID = localStorage.getItem('staffID');
-
   const [itemProp, setItemProp] = useState({});
-
-  const [listUser, setListUser] = useState([]);
-  const [listRegion, setListRegion] = useState([]);
+  const [error1, setError1] = useState('');
+  const staffId = localStorage.getItem('staffID');
   const [reCall, setReCall] = useState(false);
   const [openToast, setOpenToast] = useState(false);
   const [severity, setSeverity] = useState('');
+  const [success, setSuccess] = useState(false);
+
+  const [listUser, setListUser] = useState([]);
   const [openConfirm, setOpenConfirm] = useState(false);
+  const [inputValues, setInputVals] = useState({});
 
-  const handleOnConfirm = () => {
-		handleSave();
-  };
-
-  // const [age, setAge] = useState('');
-  const getTerritory = async () => {
+  const getShopOrdersAPI = async (body) => {
     try {
-      const res = await getTerritoryAPI();
+      const res = await getReturnBackAPI(body);
       if (res?.data) {
-        setListRegion(res?.data);
+        setListUser(res?.data);
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  const getRegion = async (id) => {
-    try {
-      const res = await getRegionAPI(id);
-
-      const tempFilter = res?.data?.filter((e) => e?.regionID !== '0');
-      setListUser(tempFilter);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    getTerritory();
-  }, []);
-  useEffect(() => {
-    getRegion(statusAll);
-  }, [statusAll]);
-
-  const setLocalAccountData = async () => {
+  const updateAPI = async () => {
     const body = {
-      staffID,
+        shopOrderID: inputValues.shopOrderID,
+        shipperID: staffId,
     };
-    const res = await staffInfoAPI(body);
-    res.data.photoURL = '/static/mock-images/avatars/avatar_default.png';
-    
-    localStorage.setItem("accountData", JSON.stringify(res?.data));
-  }
 
-  const handleSave = async () => {
-    const body = {
-      shipperID: staffID,
-      workTerritoryID: statusAll,
-    };
     try {
-      const res = await updateShipperWorkAPI(body);
+      const res = await updateReturnBackAPI(body);
       if (res?.status === 200) {
-        await setLocalAccountData();
-
         setOpenToast(true);
         setSeverity('success');
         setError1(res.data);
@@ -185,27 +136,13 @@ export default function User() {
     }
   };
 
-  const handleChange = (event, id) => {
-    const temp = listUser.filter((e) => e.id === id);
-    const tempArr = listUser.filter((e) => e.id !== id);
-    let temp1 = [];
-    temp[0].paymentStatus = event.target.value;
-    temp1 = temp;
-    const temp2 = [...temp1, ...tempArr];
-    temp2.sort((a, b) => a.id - b.id);
-    setListUser(temp2);
-  };
-
-  const handleChangeDeliveryStatus = (event, id) => {
-    const temp = listUser.filter((e) => e.shopOrderID === id);
-    const tempArr = listUser.filter((e) => e.shopOrderID !== id);
-    let temp1 = [];
-    temp[0].deliveryStatus = event.target.value;
-    temp1 = temp;
-    const temp2 = [...temp1, ...tempArr];
-    temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
-    setListUser(temp2);
-  };
+  useEffect(() => {
+    const body = {
+      shipperID: staffId,
+      inputStatus: statusAll,
+    };
+    getShopOrdersAPI(body);
+  }, [statusAll, reCall]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -231,26 +168,6 @@ export default function User() {
     setPage(0);
   };
 
-  const handleFilterByName = (event) => {
-    setFilterName(event.target.value);
-  };
-
-  const handleChangeStatus = (id) => {
-    const temp = listUser.filter((e) => e.shopOrderID === id);
-    const tempArr = listUser.filter((e) => e.shopOrderID !== id);
-    let temp1 = [];
-    if (temp[0].paymentStatus === true) {
-      temp[0].paymentStatus = false;
-      temp1 = temp;
-    } else {
-      temp[0].paymentStatus = true;
-      temp1 = temp;
-    }
-    const temp2 = [...temp1, ...tempArr];
-    temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
-    setListUser(temp2);
-  };
-
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listUser.length) : 0;
 
   const filteredUsers = applySortFilter(listUser, getComparator(order, orderBy), filterName);
@@ -258,36 +175,27 @@ export default function User() {
   const isUserNotFound = filteredUsers.length === 0;
 
   return (
-    <Page title="Đăng Ký Khu Vực Vận Chuyển">
+    <Page title="Thu Hàng">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Đăng Ký Khu Vực Vận Chuyển
+          Thu Hàng
           </Typography>
-          <Button variant="contained" 
-          onClick={ () => {
-            setOpenConfirm(true);
-          }
-            
-          }
-          >
-            Lưu
-          </Button>
         </Stack>
-        {/* <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography> */}
+
         <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
-          <Box>Khu vực vận chuyển</Box>
-          <FormControl style={{ marginTop: '-5px' }}>
+          <Typography style={{ marginTop: '10px' }}>Trạng thái đơn hàng</Typography>
+          <FormControl style={{ marginTop: '10px' , marginLeft: '30px' }}>
             <Select
               labelId="demo-simple-select-label"
               id="demo-simple-select"
+              style={{ height: '30px' }}
               value={statusAll}
-              style={{ height: '30px', marginLeft: '20px' }}
               onChange={(e) => setStatusAll(e?.target?.value)}
             >
-              {listRegion?.map((e) => (
-                <MenuItem value={e?.territoryID}>{e?.description}</MenuItem>
-              ))}
+              <MenuItem value={0}>Tất cả</MenuItem>
+              <MenuItem value={1}>Đang Về Kho</MenuItem>
+              <MenuItem value={2}>Đã Về Kho</MenuItem>
             </Select>
           </FormControl>
         </Box>
@@ -306,28 +214,89 @@ export default function User() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { description, regionID } = row;
+                    const {
+                      shopOrderID,
+                      shopName,
+                      shopKeeperName,
+                      shopAddress,
+                      shopPhone,
+                      packageName,
+                      mass,
+                      quantity,
+                      unitPrice,
+                      totalPrice,
+                      deliveryAddress,
+                      confirmation,
+                      statusDescription,
+                    } = row;
 
-                    const isItemSelected = selected.indexOf(regionID) !== -1;
+                    const isItemSelected = selected.indexOf(shopOrderID) !== -1;
 
                     return (
                       <TableRow
                         hover
-                        key={regionID}
+                        key={shopOrderID}
                         tabIndex={-1}
                         role="checkbox"
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
-                        // onClick={() => {
-                        //   setItemProp(row);
-                        //   setOpen(true);
-                        // }}
                       >
                         <TableCell padding="checkbox">
                           {/* <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} /> */}
                         </TableCell>
 
-                        <TableCell align="left">{regionID === '0' ? null : description}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{shopOrderID}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{packageName}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{shopAddress}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{mass}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{totalPrice}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{statusDescription}</TableCell>
+
+                        <TableCell>
+                          {
+                            confirmation === '0'?  <Button
+                            sx={{ marginTop: '20px' }}
+                            variant={confirmation === '0' ?  'outlined' :'contained'  }
+                            onClick={() => {
+                              setInputVals({ shopOrderID });
+                              setOpenConfirm(true);
+                            }
+                            }
+                          >
+                            Đang Về Kho
+                          </Button>:
+                          <Button
+                          sx={{ marginTop: '20px' }}
+                          variant={confirmation === '0' ?  'outlined' :'contained'  }
+                        >
+                          Đã Về Kho
+                        </Button>
+                          }
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -372,13 +341,13 @@ export default function User() {
           setOpenToast(false);
         }}
       />
-            <ConfirmDlg
+      <ConfirmDlg
         title="Thông Báo"
         open={openConfirm}
         setOpen={setOpenConfirm}
-        onConfirm={handleOnConfirm}
+        onConfirm={updateAPI}
       >
-        Bạn có chắc sẽ đăng ký khu vực vận chuyển này?
+        Bạn có chắc muốn cập nhật đơn hàng này?
       </ConfirmDlg>
     </Page>
   );

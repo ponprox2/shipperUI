@@ -1,4 +1,4 @@
-const BASE_URL = 'http://192.168.1.4:8180';
+const BASE_URL = 'http://172.20.10.11:8180';
 
 export const GET_SHIPPING_ORDER = `${BASE_URL}/api/shippingOrders`;
 
@@ -18,3 +18,14 @@ export const API_SHIPPER_WORK = `${BASE_URL}/api/shipperWork`;
 export const API_PICKUP_CONFIRMATION = `${BASE_URL}/api/pickUpConfirmation`;
 
 export const API_PICKUP_ORDERS = `${BASE_URL}/api/pickingUpOrders`;
+
+export const GET_STAFF_INFO = `${BASE_URL}/api/staffInfo`;
+
+export const API_GET_RETURN_BACK = `${BASE_URL}/api/returnBack`;
+export const API_UPDATE_RETURN_BACK = `${BASE_URL}/api/returnBack`;
+
+export const API_GET_RETURN_CONFIRMATION = `${BASE_URL}/api/returnConfirmation`;
+export const API_UPDATE_RETURN_CONFIRMATION= `${BASE_URL}/api/returnConfirmation`;
+
+export const API_GET_RETURNING_BACK = `${BASE_URL}/api/returningBack`;
+export const API_UPDATE_RETURNING_BACK = `${BASE_URL}/api/returningBack`;

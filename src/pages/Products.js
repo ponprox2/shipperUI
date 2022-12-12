@@ -28,23 +28,20 @@ import Scrollbar from '../components/Scrollbar';
 import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
+import SimpleDialog from './DetailOrderView';
 // mock
 import { getShippingOrderAPI } from '../components/services/index';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  // { id: 'stt', label: 'STT', alignRight: false },
   { id: 'shopOrderID', label: 'Mã đơn hàng', alignRight: false },
-  { id: 'shopName ', label: 'Tên cửa hàng', alignRight: false },
   { id: 'packageName', label: 'Tên món hàng', alignRight: false },
-  { id: 'quantity', label: 'SL', alignRight: false },
-  { id: 'mass', label: 'Khối lượng(kg)', alignRight: false },
-  { id: 'unitPrice', label: 'Đơn giá(vnđ)', alignRight: false },
-  { id: 'shippingFee ', label: 'Phí vận chuyển(vnđ)', alignRight: false },
-  { id: 'totalPrice ', label: 'Tổng tiền(vnđ)', alignRight: false },
-  { id: 'shippingFeePayment ', label: 'Thanh toán phí vận chuyển', alignRight: false },
   { id: 'deliveryAddress', label: 'Địa chỉ giao', alignRight: false },
+  { id: 'mass', label: 'Khối lượng (Kg)', alignRight: false },
+  { id: 'totalPrice ', label: 'Tổng giá trị đơn hàng (VND)', alignRight: false },
+  { id: 'statusDescription ', label: 'Trạng thái đơn hàng', alignRight: false },
+  // { id: 'confirmation ', label: 'Xác nhận', alignRight: false },
 ];
 
 // ----------------------------------------------------------------------
@@ -95,6 +92,8 @@ export default function User() {
   const [priceInput, setPriceInput] = useState(0);
   const [listProduct, setListProduct] = useState([]);
   const staffId = localStorage.getItem('staffID');
+  const [itemProp, setItemProp] = useState({});
+  const [open, setOpen] = useState(false);
 
   const getShippingOrder = async (body) => {
     try {
@@ -181,15 +180,14 @@ export default function User() {
   const isUserNotFound = filteredUsers?.length === 0;
 
   return (
-    <Page title="Product">
+    <Page title="Danh Sách Đơn Giao Hàng">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Danh Sách Đơn Hàng Vận Chuyển
+            Danh Sách Đơn Giao Hàng Trong Khu Vực Đăng Ký
           </Typography>
         </Stack>
-         <Card>
-          <Box sx={{ marginLeft: '30px' }}>
+        <Box>
             <Box sx={{ display: 'flex', marginBottom: '15px', alignItems: 'center', height: '56px' }}>
               <Typography textAlign="center">Khối lượng (kg)</Typography>
               <input
@@ -204,7 +202,7 @@ export default function User() {
                 onChange={(e) => setMassInput(e.target.value)}
               />
             </Box>
-            <Box sx={{ display: 'flex' }}>
+            <Box sx={{ display: 'flex', marginBottom: '25px' }}>
               <Typography>Tổng tiền (vnđ)</Typography>
               <input
                 style={{
@@ -220,6 +218,7 @@ export default function User() {
             </Box>
           </Box>
 
+         <Card>
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
@@ -239,13 +238,16 @@ export default function User() {
                       shopOrderID,
                       shopName,
                       packageName,
-                      quantity,
                       mass,
+                      quantity,
                       unitPrice,
                       shippingFee,
                       totalPrice,
                       deliveryAddress,
                       shippingFeePayment,
+                      fullPayment,
+                      confirmation,
+                      statusDescription,
                     } = row;
 
                     const isItemSelected = selected.indexOf(shopOrderID) !== -1;
@@ -262,22 +264,35 @@ export default function User() {
                         <TableCell padding="checkbox">
                           {/* <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, shopOrderID)} /> */}
                         </TableCell>
-
-                        <TableCell align="left">
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}>
                           {shopOrderID}
                         </TableCell>
-                        <TableCell align="left">{shopName}</TableCell>
-                        <TableCell align="left">{packageName}</TableCell>
-                        <TableCell align="left">{quantity}</TableCell>
-                        <TableCell align="left">{mass}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}>{packageName}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}>{deliveryAddress}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}>{mass}</TableCell>
                         {/* <TableCell align="left" onClick={() => handleChangeStatus(id)}>
                           {status ? 'xuat' : 'nhap'}
                         </TableCell> */}
-                        <TableCell align="left">{unitPrice}</TableCell>
-                        <TableCell align="left">{shippingFee}</TableCell>
-                        <TableCell align="left">{totalPrice}</TableCell>
-                        <TableCell align="left">{shippingFeePayment === '0'?'Chưa':'Rồi'}</TableCell>
-                        <TableCell align="left">{deliveryAddress}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}>{totalPrice}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}>{statusDescription}</TableCell>
                         {/* <Button>123</Button> */}
 
                         {/* <TableCell align="right">
@@ -317,6 +332,7 @@ export default function User() {
           />
         </Card>
       </Container>
+      <SimpleDialog open={open} itemProp={itemProp} onClose={() => setOpen(false)} />
     </Page>
   );
 }

@@ -35,17 +35,18 @@ import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashbo
 import { updatePickUpOrderAPI, pickupOrderAPI } from '../components/services/index';
 import SimpleDialog from './DetailOrderView';
 import DialogApp from './Dialog';
+import ConfirmDlg from './ConfirmDlg';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'shopOrderID', label: 'Mã đơn hàng', alignRight: false },
-  { id: 'shopName', label: 'Tên cửa hàng', alignRight: false },
   { id: 'packageName', label: 'Tên món hàng', alignRight: false },
-  { id: 'deliveryAddress', label: 'Chủ cửa hàng', alignRight: false },
-  { id: 'consigneeName', label: 'Địa chỉ cửa hàng', alignRight: false },
-  { id: 'consigneePhone ', label: 'SĐT cửa hàng]', alignRight: false },
-  { id: 'consigneeNote ', label: 'Trạng thái giao hàng', alignRight: false },
+  { id: 'shopAddress', label: 'Địa chỉ cửa hàng', alignRight: false },
+  { id: 'mass', label: 'Khối lượng (Kg)', alignRight: false },
+  { id: 'totalPrice ', label: 'Tổng giá trị đơn hàng (VND)', alignRight: false },
+  { id: 'statusDescription ', label: 'Trạng thái đơn hàng', alignRight: false },
+  { id: 'confirmation ', label: 'Xác nhận', alignRight: false },
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -91,15 +92,24 @@ export default function User() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [statusAll, setStatusAll] = useState(0);
   const [open, setOpen] = useState(false);
-  const [reCall, setReCall] = useState(false);
   const [itemProp, setItemProp] = useState({});
   const [error1, setError1] = useState('');
   const staffId = localStorage.getItem('staffID');
+  const [reCall, setReCall] = useState(false);
   const [openToast, setOpenToast] = useState(false);
   const [severity, setSeverity] = useState('');
   const [success, setSuccess] = useState(false);
 
   const [listUser, setListUser] = useState([]);
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [inputValues, setInputVals] = useState({});
+
+  const handleOnConfirm = () => {
+    handleClickStatus(inputValues.confirmation, inputValues.shopOrderID);
+    handleSave();
+  }
+
+
   const getShippingOrderDelivery = async (body) => {
     try {
       const res = await pickupOrderAPI(body);
@@ -123,18 +133,22 @@ export default function User() {
     } catch (error) {
       setOpenToast(true);
       setSeverity('error');
-      setError1(error?.response?.data?.message);
+      setError1(error?.response?.data);
     }
   };
 
   useEffect(() => {
-    getShippingOrderDelivery(staffId);
-  }, [reCall]);
+    const body = {
+      shipperID: staffId,
+      inputDeliveryStatus: statusAll,
+    };
+    getShippingOrderDelivery(body);
+  }, [statusAll, reCall]);
 
   const handleSave = async () => {
     const body = listUser?.map((e) => ({
       shopOrderID: e?.shopOrderID,
-      confirmation1: `${e?.confirmation}`,
+      confirmation: `${e?.confirmation}`,
       shipperID: staffId,
     }));
 
@@ -221,7 +235,7 @@ export default function User() {
     temp1 = temp;
     console.log(temp1[0]?.confirmation);
     const temp2 = [...temp1, ...tempArr];
-    temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
+    // temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
     setListUser(temp2);
   };
 
@@ -232,17 +246,33 @@ export default function User() {
   const isUserNotFound = filteredUsers.length === 0;
 
   return (
-    <Page title="User">
+    <Page title="Lấy Hàng Từ Cửa Hàng">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Giao Hàng
+            Lấy Hàng Từ Cửa Hàng
           </Typography>
-          <Button variant="contained" onClick={handleSave}>
+          {/* <Button variant="contained" onClick={handleSave}>
             Lưu
-          </Button>
+          </Button> */}
         </Stack>
 
+        <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
+          <Typography style={{ marginTop: '10px' }}>Trạng thái đơn hàng</Typography>
+          <FormControl style={{ marginTop: '10px' , marginLeft: '30px' }}>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              style={{ height: '30px' }}
+              value={statusAll}
+              onChange={(e) => setStatusAll(e?.target?.value)}
+            >
+              <MenuItem value={0}>Tất cả</MenuItem>
+              <MenuItem value={1}>Đang Lấy Hàng</MenuItem>
+              <MenuItem value={2}>Đã Lấy Hàng</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
         <Card>
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
@@ -261,13 +291,17 @@ export default function User() {
                     const {
                       shopOrderID,
                       shopName,
+                      shopKeeperName,
+                      shopAddress,
+                      shopPhone,
                       packageName,
+                      mass,
+                      quantity,
+                      unitPrice,
+                      totalPrice,
                       deliveryAddress,
-                      consigneeName,
-                      consigneePhone,
-                      consignneNote,
-                      deliveryStatus,
                       confirmation,
+                      statusDescription,
                     } = row;
 
                     const isItemSelected = selected.indexOf(shopOrderID) !== -1;
@@ -285,61 +319,36 @@ export default function User() {
                           {/* <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} /> */}
                         </TableCell>
 
-                        <TableCell
-                          align="left"
-                          onClick={() => {
-                            setItemProp(row);
-                            setOpen(true);
-                          }}
-                        >
-                          {shopOrderID}
-                        </TableCell>
-                        <TableCell
-                          align="left"
-                          onClick={() => {
-                            setItemProp(row);
-                            setOpen(true);
-                          }}
-                        >
-                          {shopName}
-                        </TableCell>
-                        <TableCell
-                          align="left"
-                          onClick={() => {
-                            setItemProp(row);
-                            setOpen(true);
-                          }}
-                        >
-                          {packageName}
-                        </TableCell>
-                        <TableCell
-                          align="left"
-                          onClick={() => {
-                            setItemProp(row);
-                            setOpen(true);
-                          }}
-                        >
-                          {consigneeName}
-                        </TableCell>
-
-                        <TableCell
-                          align="left"
-                          onClick={() => {
-                            setItemProp(row);
-                            setOpen(true);
-                          }}
-                        >
-                          {deliveryAddress}
-                        </TableCell>
-                        <TableCell
-                          align="left"
-                          onClick={() => {
-                            setItemProp(row);
-                            setOpen(true);
-                          }}
-                        >
-                          {consigneePhone}
-                        </TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{shopOrderID}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{packageName}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{shopAddress}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{mass}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{totalPrice}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{statusDescription}</TableCell>
                         {/* <Typography
                           align="left"
                           sx={{ maxHeight: '100px', overflow: 'hidden', margin: '16px', textOverflow: 'ellipsis' }}
@@ -380,17 +389,38 @@ export default function User() {
                               </Select>
                             </FormControl>
                           )} */}
-                          <Button
+                          {
+                            confirmation === '0'?  <Button
                             sx={{ marginTop: '20px' }}
-                            variant={confirmation === '0' ? 'outlined' : 'contained'}
-                            onClick={() => handleClickStatus(confirmation, shopOrderID)}
+                            variant={confirmation === '0' ?  'outlined' :'contained'  }
+                            onClick={() => {
+                              // handleClickStatus(confirmation, shopOrderID);
+                              setInputVals({ shopOrderID, confirmation });
+                              setOpenConfirm(true);
+                            }
+                            }
                           >
-                            {confirmation === '0' ? 'Đang Lấy Hàng' : 'Đã Lấy Hàng'}
-                          </Button>
-                        </TableCell>
-
-                        <TableCell align="right">
-                          <UserMoreMenu />
+                            Lấy Hàng
+                          </Button>:
+                          <Button
+                          sx={{ marginTop: '20px' }}
+                          variant={confirmation === '0' ?  'outlined' :'contained'  }
+                        >
+                          Đã Lấy Hàng
+                        </Button>
+                          }
+                          {/* <Button
+                            sx={{ marginTop: '20px' }}
+                            variant={confirmation === '0' ? 'contained' : 'outlined' }
+                            onClick={() => {
+                              // handleClickStatus(confirmation, shopOrderID);
+                              setInputVals({ shopOrderID, confirmation });
+                              setOpenConfirm(true);
+                            }
+                            }
+                          >
+                            {confirmation === '0' ? 'Lấy Hàng' : 'Đang Lấy Hàng'}
+                          </Button> */}
                         </TableCell>
                       </TableRow>
                     );
@@ -436,6 +466,14 @@ export default function User() {
           setOpenToast(false);
         }}
       />
+      <ConfirmDlg
+        title="Thông Báo"
+        open={openConfirm}
+        setOpen={setOpenConfirm}
+        onConfirm={handleOnConfirm}
+      >
+        Bạn có chắc muốn thay đổi trạng thái của đơn hàng này?
+      </ConfirmDlg>
     </Page>
   );
 }

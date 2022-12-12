@@ -1,8 +1,5 @@
 import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import axios from 'axios';
 // material
 import {
   Card,
@@ -26,34 +23,25 @@ import {
 } from '@mui/material';
 // components
 import Page from '../components/Page';
-import Label from '../components/Label';
 import Scrollbar from '../components/Scrollbar';
-import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
+import SimpleDialog from './DetailOrderView';
 // mock
 import { updatePickupConfirmationAPI, pickupConfirmationAPI } from '../components/services/index';
-
+import DialogApp from './Dialog';
+import ConfirmDlg from './ConfirmDlg';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'shopOrderID', label: 'Mã đơn hàng', alignRight: false },
-  { id: 'shopName ', label: 'Tên cửa hàng ', alignRight: false },
   { id: 'packageName', label: 'Tên món hàng', alignRight: false },
-  { id: 'quantity', label: 'Chủ cửa hàng, , ', alignRight: false },
-  { id: 'mass', label: 'Địa chỉ cửa hàng', alignRight: false },
-  { id: 'unitPrice', label: 'SĐT cửa hàng', alignRight: false },
-  { id: 'totalPrice ', label: 'Tổng tiền(vnđ)', alignRight: false },
-  { id: 'confirmation ', label: 'Trạng thái xác nhận', alignRight: false },
+  { id: 'shopAddress', label: 'Địa chỉ cửa hàng', alignRight: false },
+  { id: 'mass', label: 'Khối lượng (Kg)', alignRight: false },
+  { id: 'totalPrice ', label: 'Tổng giá trị đơn hàng (VND)', alignRight: false },
+  { id: 'statusDescription ', label: 'Trạng thái đơn hàng', alignRight: false },
+  { id: 'confirmation ', label: 'Xác nhận', alignRight: false },
 ];
-// id: 1,
-// shippingID: 123,
-// packageName: 'giay the thao',
-// quantity: 1,
-// mass: 20,
-// unitPrice: 100000,
-// deliveryAddress: '99 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-// status: true,
 // ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
@@ -102,27 +90,40 @@ export default function User() {
   const [priceInput, setPriceInput] = useState(0);
   const staffId = localStorage.getItem('staffID');
   const [reCall, setReCall] = useState(false);
+  const [openToast, setOpenToast] = useState(false);
+  const [severity, setSeverity] = useState('');
+  const [itemProp, setItemProp] = useState({});
+  const [open, setOpen] = useState(false);
 
   const [listUser, setListUser] = useState([
     {
-      shopOrderID: '10',
-      shopName: 'Olivo Official Store',
-      packageName: 'Máy chơi game xịn',
-      quantity: '4',
-      mass: '0.6',
-      unitPrice: '50000',
-      shippingFee: '16200',
-      totalPrice: '216200',
-      deliveryAddress: '97 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-      shippingFeePayment: '0',
-      fullPayment: '0',
-      confirmation: '1',
-    },
+      shopOrderID: '',
+      shopName: '',
+      shopKeeperName: '',
+      shopAddress: '',
+      shopPhone: '',
+      packageName: '',
+      mass: '',
+      quantity: '',
+      unitPrice: '',
+      totalPrice: '',
+      deliveryAddress: '',
+      confirmation: '',
+  },
   ]);
+
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [inputValues, setInputVals] = useState({});
+
+  const handleOnConfirm = () => {
+    // handleClickStatus(inputValues.confirmation, inputValues.shopOrderID);
+    handleSave();
+  }
 
   const getShippingOrderConfirm = async (body) => {
     try {
       const res = await pickupConfirmationAPI(body);
+      console.log(res);
       setListUser(res?.data);
     } catch (error) {
       console.log(error);
@@ -133,19 +134,29 @@ export default function User() {
     try {
       const res = await updatePickupConfirmationAPI(body);
       if (res?.status === 200) {
+        setOpenToast(true);
+        setSeverity('success');
         setError1(res.data);
         setReCall(!reCall);
       }
     } catch (error) {
-      setError1(error?.response.data);
+      setOpenToast(true);
+      setSeverity('error');
+      setError1(error?.response?.data);
     }
   };
   const handleSave = () => {
-    const body = listUser?.map((e) => ({
-      shopOrderID: e?.shopOrderID,
-      confirmation: e?.confirmation,
+    // const body = listUser?.map((e) => ({
+    //   shopOrderID: e?.shopOrderID,
+    //   confirmation: e?.confirmation,
+    //   shipperID: staffId,
+    // }));
+
+    const body = [{
+      shopOrderID: inputValues.shopOrderID,
+      confirmation: inputValues.inputConfirmation,
       shipperID: staffId,
-    }));
+    }]
 
     confirmShippingOrder(body);
   };
@@ -174,21 +185,6 @@ export default function User() {
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected?.slice(1));
-    } else if (selectedIndex === selected?.length - 1) {
-      newSelected = newSelected.concat(selected?.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(selected?.slice(0, selectedIndex), selected?.slice(selectedIndex + 1));
-    }
-    setSelected(newSelected);
-  };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -197,38 +193,6 @@ export default function User() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
-  const handleFilterByName = (event) => {
-    setFilterName(event.target.value);
-  };
-
-  const handleChangeStatus = (id) => {
-    const temp = listUser.filter((e) => e.id === id);
-    const tempArr = listUser.filter((e) => e.id !== id);
-    let temp1 = [];
-    if (temp[0].status === true) {
-      temp[0].status = false;
-      temp1 = temp;
-    } else {
-      temp[0].status = true;
-      temp1 = temp;
-    }
-    const temp2 = [...temp1, ...tempArr];
-    temp2?.sort((a, b) => a.id - b.id);
-    setListUser(temp2);
-  };
-
-  const handleChangeDeliveryStatus = (event, id) => {
-    const temp = listUser.filter((e) => e.shopOrderID === id);
-    const tempArr = listUser.filter((e) => e.shopOrderID !== id);
-    let temp1 = [];
-    temp[0].confirmation = event.target.value;
-    temp1 = temp;
-    const temp2 = [...temp1, ...tempArr];
-    temp2?.sort((a, b) => a.shopOrderID - b.shopOrderID);
-    setListUser(temp2);
-  };
-
   const handleClickStatus = (confirmation, id) => {
     const temp = listUser.filter((e) => e.shopOrderID === id);
     const tempArr = listUser.filter((e) => e.shopOrderID !== id);
@@ -243,7 +207,7 @@ export default function User() {
     temp1 = temp;
     console.log(temp1[0]?.confirmation);
     const temp2 = [...temp1, ...tempArr];
-    temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
+    // temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
     setListUser(temp2);
   };
 
@@ -254,19 +218,18 @@ export default function User() {
   const isUserNotFound = filteredUsers?.length === 0;
 
   return (
-    <Page title="User">
+    <Page title="Xác Nhận Đơn Lấy Hàng">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Hủy Đơn Lấy Hàng
+          Xác Nhận Đơn Lấy Hàng
           </Typography>
-          <Button variant="contained" onClick={handleSave}>
+          {/* <Button variant="contained" onClick={handleSave}>
             Lưu
-          </Button>
+          </Button> */}
         </Stack>
-        <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
-        <Card>
-          <Box sx={{ marginLeft: '30px' }}>
+        {/* <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography> */}
+        <Box>
             <Box sx={{ display: 'flex', marginBottom: '15px', alignItems: 'center', height: '56px' }}>
               <Typography textAlign="center">Khối lượng (kg)</Typography>
               <input
@@ -281,7 +244,7 @@ export default function User() {
                 onChange={(e) => setMassInput(e.target.value)}
               />
             </Box>
-            <Box sx={{ display: 'flex' }}>
+            <Box sx={{ display: 'flex', marginBottom: '25px' }}>
               <Typography>Tổng tiền (vnđ)</Typography>
               <input
                 style={{
@@ -296,6 +259,10 @@ export default function User() {
               />
             </Box>
           </Box>
+        
+        
+        <Card>
+          
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
@@ -314,15 +281,17 @@ export default function User() {
                     const {
                       shopOrderID,
                       shopName,
+                      shopKeeperName,
+                      shopAddress,
+                      shopPhone,
                       packageName,
-                      quantity,
                       mass,
+                      quantity,
                       unitPrice,
-                      shippingFee,
                       totalPrice,
                       deliveryAddress,
-                      shippingFeePayment,
                       confirmation,
+                      statusDescription,
                     } = row;
 
                     const isItemSelected = selected.indexOf(shopOrderID) !== -1;
@@ -339,53 +308,66 @@ export default function User() {
                         <TableCell padding="checkbox">
                           {/* <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} /> */}
                         </TableCell>
-                        <TableCell align="left">{shopOrderID}</TableCell>
-                        <TableCell align="left">{shopName}</TableCell>
-                        <TableCell align="left">{packageName}</TableCell>
-                        <TableCell align="left">{quantity}</TableCell>
-                        <TableCell align="left">{mass}</TableCell>
-
-                        <TableCell align="left">{unitPrice}</TableCell>
-                        <TableCell align="left">{shippingFee}</TableCell>
-                        <TableCell align="left">{totalPrice}</TableCell>
-                        <TableCell align="left">{shippingFeePayment === '0' ? 'Chưa' : 'Rồi'} </TableCell>
-                        <TableCell align="left">{deliveryAddress}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{shopOrderID}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{packageName}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{shopAddress}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{mass}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{totalPrice}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
+                        >{statusDescription}</TableCell>
                         <TableCell>
-                          {/* {confirmation === '0' ? (
-                            <FormControl style={{ marginTop: '10px' }}>
-                              <Select
-                                style={{ height: '30px' }}
-                                labelId="demo-simple-select-label"
-                                id="demo-simple-select"
-                                value={confirmation}
-                                onChange={(e) => handleChangeDeliveryStatus(e, shopOrderID)}
-                              >
-                                <MenuItem value={0}>Đang Chờ</MenuItem>
-                                <MenuItem value={1}>Nhận Đơn</MenuItem>
-                                <MenuItem value={2}>Từ Chối Đơn</MenuItem>
-                              </Select>
-                            </FormControl>
-                          ) : (
-                            <FormControl style={{ marginTop: '10px' }}>
-                              <Select
-                                style={{ height: '30px' }}
-                                labelId="demo-simple-select-label"
-                                id="demo-simple-select"
-                                value={confirmation}
-                                onChange={(e) => handleChangeDeliveryStatus(e, shopOrderID)}
-                              >
-                                <MenuItem value={1}>Nhận Đơn</MenuItem>
-                                <MenuItem value={2}>Từ Chối Đơn</MenuItem>
-                              </Select>
-                            </FormControl>
-                          )} */}
-                          <Button
+                          {/* <Button
                             sx={{ marginTop: '20px' }}
                             variant={confirmation === '0' ? 'outlined' : 'contained'}
-                            onClick={() => handleClickStatus(confirmation, shopOrderID)}
+                            onClick={() => {
+                              // handleClickStatus(confirmation, shopOrderID);
+                              setInputVals({ shopOrderID, confirmation });
+                              setOpenConfirm(true);
+                            }
+                            }
                           >
-                            {confirmation === '0' ? 'Nhận Đơn' : 'Huỷ đơn'}
-                          </Button>
+                            Hủy
+                          </Button> */}
+                            <FormControl style={{ marginTop: '10px' }}>
+                              <Select
+                                style={{ height: '30px' }}
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={confirmation}
+                                onChange={(e) => {
+                                  const inputConfirmation = e.target?.value;
+                                  setInputVals({ shopOrderID, inputConfirmation });
+                                  setOpenConfirm(true);
+                                }}
+                              >
+                                <MenuItem value={0}>Chưa</MenuItem>
+                                <MenuItem value={1}>Nhận Đơn</MenuItem>
+                                <MenuItem value={2}>Hủy Đơn</MenuItem>
+                              </Select>
+                            </FormControl>
                         </TableCell>
                       </TableRow>
                     );
@@ -421,6 +403,24 @@ export default function User() {
           />
         </Card>
       </Container>
+      <SimpleDialog open={open} itemProp={itemProp} onClose={() => setOpen(false)} />
+      <DialogApp
+        content={error1}
+        type={0}
+        isOpen={openToast}
+        severity={severity}
+        callback={() => {
+          setOpenToast(false);
+        }}
+      />
+      <ConfirmDlg
+        title="Thông Báo"
+        open={openConfirm}
+        setOpen={setOpenConfirm}
+        onConfirm={handleOnConfirm}
+      >
+        Bạn có chắc sẽ xác nhận đơn hàng này?
+      </ConfirmDlg>
     </Page>
   );
 }

@@ -12,6 +12,13 @@ import {
   API_REGISTER,
   API_PICKUP_CONFIRMATION,
   API_PICKUP_ORDERS,
+  GET_STAFF_INFO,
+  API_GET_RETURN_BACK,
+  API_UPDATE_RETURN_BACK,
+  API_GET_RETURN_CONFIRMATION,
+  API_UPDATE_RETURN_CONFIRMATION,
+  API_GET_RETURNING_BACK,
+  API_UPDATE_RETURNING_BACK,
 } from './configs';
 
 export const getTerritoryAPI = async () => {
@@ -65,7 +72,7 @@ export const confirmShippingOrderAPI = async (body) => {
 export const getShippingOrderDeliveryAPI = async (body) => {
   try {
     const res = await axios.get(
-      `${GET_SHIPPING_ORDER_DELIVERING}?shipperID=${body?.shipperID}&inputDeliveryStatus=${body?.status}`
+      `${GET_SHIPPING_ORDER_DELIVERING}?shipperID=${body?.shipperID}&inputDeliveryStatus=${body?.inputDeliveryStatus}`
     );
     return res;
   } catch (error) {
@@ -103,7 +110,44 @@ export const updatePickUpOrderAPI = async (body) => {
   return response;
 };
 
-export const pickupOrderAPI = async (shipperID) => {
-  const response = await axios.get(`${API_PICKUP_ORDERS}?shipperID=${shipperID}`);
+export const pickupOrderAPI = async (body) => {
+  const response = await axios.get(`${API_PICKUP_ORDERS}?shipperID=${body?.shipperID}&inputDeliveryStatus=${body?.inputDeliveryStatus}`);
+  return response;
+};
+
+export const staffInfoAPI = async (body) => {
+  const response = await axios.get(
+    `${GET_STAFF_INFO}?staffID=${body?.staffID}`
+  );
+  return response;
+};
+
+export const getReturnBackAPI = async (body) => {
+  const response = await axios.get(`${API_GET_RETURN_BACK}?shipperID=${body?.shipperID}&inputStatus=${body?.inputStatus}`);
+  return response;
+};
+
+export const updateReturnBackAPI = async (body) => {
+  const response = await axios.post(API_UPDATE_RETURN_BACK, body);
+  return response;
+};
+
+export const getReturnConfirmationAPI = async (body) => {
+  const response = await axios.get(`${API_GET_RETURN_CONFIRMATION}?shipperID=${body?.shipperID}&mass=${body?.mass}&totalPrice=${body?.totalPrice}`);
+  return response;
+};
+
+export const updateReturnConfirmationAPI = async (body) => {
+  const response = await axios.post(API_UPDATE_RETURN_CONFIRMATION, body);
+  return response;
+};
+
+export const getReturningBackAPI = async (body) => {
+  const response = await axios.get(`${API_GET_RETURNING_BACK}?shipperID=${body?.shipperID}&inputStatus=${body?.inputStatus}`);
+  return response;
+};
+
+export const updateReturningBackAPI = async (body) => {
+  const response = await axios.post(API_UPDATE_RETURNING_BACK, body);
   return response;
 };

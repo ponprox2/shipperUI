@@ -15,6 +15,10 @@ import AddProduct from './pages/addProduct';
 import DetailOrder from './pages/detailOrder';
 import UpdProduct from './pages/updateProduct';
 import Pickup from './pages/Pickup';
+import StaffInfo from './pages/StaffInfo';
+import ReturnBack from './pages/ReturnBack';
+import ReturnConfirmation from './pages/ReturnConfirmation';
+import ReturningBack from './pages/ReturningBack';
 
 // ----------------------------------------------------------------------
 
@@ -24,10 +28,10 @@ export default function Router() {
       path: '/dashboard',
       element: <DashboardLayout />,
       children: [
-        { path: 'app', element: <DashboardApp /> },
-        { path: 'user', element: <User /> },
-        { path: 'products', element: <Products /> },
-        { path: 'order', element: <Blog /> },
+        { path: 'shipperWork', element: <DashboardApp /> },
+        { path: 'deliveryConfirmation', element: <User /> },
+        { path: 'orders', element: <Products /> },
+        { path: 'shippingOrdersDelivering', element: <Blog /> },
         { path: 'declinePickup', element: <DeclinePickup /> },
         { path: 'pickup', element: <Pickup /> },
         { path: 'declineDelevery', element: <Blog /> },
@@ -36,6 +40,10 @@ export default function Router() {
         { path: 'register', element: <Register /> },
         { path: 'updateProduct/', element: <UpdProduct /> },
         { path: 'orderDetail/', element: <DetailOrder /> },
+        { path: 'staffInfo', element: <StaffInfo/>},
+        { path: 'returnBack', element: <ReturnBack/>},
+        { path: 'returnConfirmation', element: <ReturnConfirmation/>},
+        { path: 'returningBack', element: <ReturningBack/>},
       ],
     },
     {
